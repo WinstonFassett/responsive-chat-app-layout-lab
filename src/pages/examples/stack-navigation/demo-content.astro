@@ -1,0 +1,1043 @@
+---
+// Stack Navigation Demo Content - Production Ready Implementation
+---
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stack Navigation Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* CSS Variables for Maintainable Dimensions */
+    :root {
+      --channels-panel-width: 20rem;       /* 320px channels panel */
+      --thread-panel-width: 24rem;         /* 384px thread panel (wider on desktop) */
+      --profile-panel-width: 20rem;        /* 320px profile panel */
+      --main-content-min-width: 20rem;     /* 320px minimum for main content */
+      --main-content-max-width: 48rem;     /* 768px maximum for main content */
+      --header-height: 4rem;               /* 64px, matches h-16 */
+      --stack-slide-duration: 350ms;       /* Stack transition timing */
+      --stack-slide-easing: cubic-bezier(0.4, 0, 0.2, 1); /* Material motion */
+      --breadcrumb-height: 2.5rem;         /* Breadcrumb bar height */
+      --back-button-size: 2.75rem;         /* Back button touch target */
+      --stack-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Panel shadows */
+      --panel-transition: max-width 0.3s ease-out, opacity 0.3s ease-out; /* Panel animations */
+    }
+    
+    html, body { height: 100%; margin: 0; padding: 0; }
+    
+    /* Standardized Avatar Patterns */
+    .avatar-xs { @apply w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-sm { @apply w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-md { @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-lg { @apply w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0; }
+    
+    /* Status Indicator Patterns */
+    .status-online { @apply w-2 h-2 bg-green-400 rounded-full flex-shrink-0; }
+    .status-away { @apply w-2 h-2 bg-yellow-400 rounded-full flex-shrink-0; }
+    .status-offline { @apply w-2 h-2 bg-gray-400 rounded-full flex-shrink-0; }
+    
+    /* Stack Container - Mobile First */
+    .stack-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    /* Stack Panel Base - Mobile */
+    .stack-panel {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform var(--stack-slide-duration) var(--stack-slide-easing);
+      z-index: 1;
+    }
+    
+    /* Active panel (visible) */
+    .stack-panel.active {
+      transform: translateX(0);
+      z-index: 10;
+    }
+    
+    /* Previous panel (partially visible on left) */
+    .stack-panel.previous {
+      transform: translateX(-25%);
+      z-index: 5;
+    }
+    
+    /* Responsive Flexbox Layout for Tablet+ */
+    @media (min-width: 768px) {
+      .stack-container {
+        display: flex;
+        position: static;
+        overflow: visible;
+        gap: 0;
+      }
+      
+      .stack-panel {
+        position: static;
+        width: auto;
+        transform: none;
+        transition: var(--panel-transition);
+        border-right: 1px solid #e5e7eb;
+        flex-shrink: 0;
+        box-shadow: var(--stack-shadow);
+        opacity: 1;
+        height: 100%;
+      }
+      
+      /* Channels panel - fixed width */
+      .stack-panel[data-priority="1"] {
+        width: var(--channels-panel-width);
+        min-width: var(--channels-panel-width);
+        max-width: var(--channels-panel-width);
+      }
+      
+      /* Messages panel - flexible width */
+      .stack-panel[data-priority="2"] {
+        flex: 1;
+        min-width: var(--main-content-min-width);
+        max-width: var(--main-content-max-width);
+      }
+      
+      /* Thread panel - fixed width, wider on desktop */
+      .stack-panel[data-priority="3"] {
+        width: var(--thread-panel-width);
+        min-width: var(--thread-panel-width);
+        max-width: var(--thread-panel-width);
+      }
+      
+      /* Profile panel - fixed width */
+      .stack-panel[data-priority="4"] {
+        width: var(--profile-panel-width);
+        min-width: var(--profile-panel-width);
+        max-width: var(--profile-panel-width);
+      }
+      
+      /* Panel visibility states - using max-width for smooth animations */
+      .stack-panel.panel-hidden {
+        max-width: 0 !important;
+        min-width: 0 !important;
+        opacity: 0;
+        overflow: hidden;
+        border-right: none;
+      }
+      
+      .stack-panel.panel-visible {
+        opacity: 1;
+      }
+    }
+    
+    /* Desktop: Allow main content to expand more when side panels are closed */
+    @media (min-width: 1024px) {
+      .stack-panel[data-priority="2"] {
+        max-width: none;
+      }
+    }
+    
+    /* Tablet-specific rules: Max 2 panels visible */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      /* On tablet, when thread is open, hide messages */
+      .tablet-thread-mode .stack-panel[data-priority="2"] {
+        max-width: 0 !important;
+        min-width: 0 !important;
+        opacity: 0;
+        overflow: hidden;
+        border-right: none;
+      }
+      
+      /* On tablet, when thread is open, it takes the main space */
+      .tablet-thread-mode .stack-panel[data-priority="3"] {
+        flex: 1;
+        min-width: var(--main-content-min-width);
+        width: auto !important;
+        max-width: none !important;
+      }
+      
+      /* On tablet, when profile is open, hide messages */
+      .tablet-profile-mode .stack-panel[data-priority="2"] {
+        max-width: 0 !important;
+        min-width: 0 !important;
+        opacity: 0;
+        overflow: hidden;
+        border-right: none;
+      }
+      
+      /* On tablet, when profile is open, it takes the main space */
+      .tablet-profile-mode .stack-panel[data-priority="4"] {
+        flex: 1;
+        min-width: var(--main-content-min-width);
+        width: auto !important;
+        max-width: none !important;
+      }
+      
+      /* Ensure thread panel is hidden when profile is open on tablet */
+      .tablet-profile-mode .stack-panel[data-priority="3"] {
+        max-width: 0 !important;
+        min-width: 0 !important;
+        opacity: 0;
+        overflow: hidden;
+        border-right: none;
+      }
+    }
+    
+    /* Breadcrumb Styles */
+    .breadcrumb-item {
+      @apply text-sm text-blue-600 hover:text-blue-800 cursor-pointer transition-colors;
+    }
+    
+    .breadcrumb-separator {
+      @apply text-gray-400 mx-2;
+    }
+    
+    .breadcrumb-current {
+      @apply text-sm text-gray-900 font-medium;
+    }
+    
+    /* Mobile width protection */
+    @media (max-width: 767px) {
+      .stack-panel {
+        min-width: 100% !important;
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+  <div class="h-full flex overflow-hidden bg-gray-100">
+    
+    <!-- Stack Container -->
+    <div class="stack-container flex-1">
+      
+      <!-- Panel 1: Channels (Always visible on tablet+) -->
+      <div class="stack-panel active" id="panel-channels" data-priority="1">
+        <!-- Header -->
+        <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+          <div class="flex items-center justify-between h-full">
+            <h1 class="text-lg font-semibold text-gray-900">ChatApp</h1>
+            <button class="md:hidden text-gray-400 hover:text-gray-600 p-2" id="mobile-menu-btn">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Breadcrumb (Mobile only) -->
+        <div id="breadcrumb-nav" class="md:hidden bg-gray-50 border-b border-gray-200 h-[var(--breadcrumb-height)] px-4 flex-shrink-0 hidden">
+          <div class="flex items-center h-full" id="breadcrumb-content">
+            <!-- Breadcrumb items will be inserted here -->
+          </div>
+        </div>
+
+        <!-- Channel List -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Channels</h3>
+            <div class="space-y-1">
+              <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg channel-btn" data-channel="general">
+                <span class="mr-2">#</span>
+                general
+                <span class="ml-auto text-xs bg-blue-500 text-white px-2 py-1 rounded-full">3</span>
+              </button>
+              <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg channel-btn" data-channel="random">
+                <span class="mr-2">#</span>
+                random
+              </button>
+              <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg channel-btn" data-channel="design">
+                <span class="mr-2">#</span>
+                design
+                <span class="ml-auto text-xs bg-red-500 text-white px-2 py-1 rounded-full">1</span>
+              </button>
+              <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg channel-btn" data-channel="development">
+                <span class="mr-2">#</span>
+                development
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Direct Messages</h3>
+            <div class="space-y-1">
+              <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg dm-btn" data-user="alice">
+                <div class="status-online mr-3"></div>
+                Alice Johnson
+                <span class="ml-auto text-xs bg-green-500 text-white px-2 py-1 rounded-full">2</span>
+              </button>
+              <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg dm-btn" data-user="bob">
+                <div class="status-away mr-3"></div>
+                Bob Smith
+              </button>
+              <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg dm-btn" data-user="carol">
+                <div class="status-offline mr-3"></div>
+                Carol Davis
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="h-20 p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+          <div class="flex items-center h-full">
+            <div class="avatar-sm bg-blue-500">
+              <span class="text-white text-sm font-medium">JD</span>
+            </div>
+            <div class="ml-3 flex-1">
+              <p class="text-sm font-medium text-gray-700">John Doe</p>
+              <p class="text-xs text-gray-500">Online</p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600 p-1 user-profile-btn">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Messages (Flexible main content) -->
+      <div class="stack-panel panel-visible" id="panel-messages" data-priority="2">
+        <!-- Header with Back Button -->
+        <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+          <div class="flex items-center justify-between h-full">
+            <div class="flex items-center min-w-0">
+              <button class="md:hidden mr-3 text-gray-600 hover:text-gray-900 p-1 back-btn" data-target="panel-channels">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+              </button>
+              <h1 id="messages-title" class="text-lg font-semibold text-gray-900 truncate">
+                # general
+              </h1>
+              <span class="ml-2 text-sm text-gray-500">234 members</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button class="text-gray-400 hover:text-gray-600 p-2 thread-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </button>
+              <button class="text-gray-400 hover:text-gray-600 p-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-green-500">
+              <span class="text-white text-sm font-medium">AJ</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">Alice Johnson</span>
+                <span class="text-xs text-gray-500">Today at 9:42 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                Hey everyone! I just pushed the latest updates to the design system. 
+                Would love to get your feedback on the new component library.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-blue-500">
+              <span class="text-white text-sm font-medium">BS</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">Bob Smith</span>
+                <span class="text-xs text-gray-500">Today at 9:45 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                This looks great! The new button variants are exactly what we needed. 
+                I'll start implementing these in the dashboard components.
+              </p>
+              <button class="text-xs text-blue-600 hover:text-blue-800 mt-1 font-medium thread-trigger">
+                2 replies
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-purple-500">
+              <span class="text-white text-sm font-medium">CD</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">Carol Davis</span>
+                <span class="text-xs text-gray-500">Today at 10:12 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                Quick question about the spacing system - are we sticking with the 8px grid 
+                or moving to the new 4px base system?
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-blue-500">
+              <span class="text-white text-sm font-medium">JD</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">John Doe</span>
+                <span class="text-xs text-gray-500">Today at 10:15 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                @Carol Davis We're keeping the 8px grid for now, but I added some 4px utilities 
+                for fine-tuning. Check the spacing documentation for details.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="border-t border-gray-200 bg-white h-20 p-4 flex-shrink-0">
+          <div class="flex items-end space-x-3 h-full">
+            <div class="flex-1">
+              <textarea
+                class="w-full resize-none border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows="1"
+                placeholder="Type a message..."
+              ></textarea>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors h-10">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Thread -->
+      <div class="stack-panel panel-hidden" id="panel-thread" data-priority="3">
+        <!-- Thread Header -->
+        <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+          <div class="flex items-center justify-between h-full">
+            <div class="flex items-center min-w-0">
+              <button class="lg:hidden mr-3 text-gray-600 hover:text-gray-900 p-1 back-btn" data-target="panel-messages">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+              </button>
+              <h1 class="text-lg font-semibold text-gray-900 truncate">Thread</h1>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600 p-2 close-thread-btn">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Original Message -->
+        <div class="bg-gray-50 border-b border-gray-200 p-4 flex-shrink-0">
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-blue-500">
+              <span class="text-white text-sm font-medium">BS</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">Bob Smith</span>
+                <span class="text-xs text-gray-500">Today at 9:45 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                This looks great! The new button variants are exactly what we needed. 
+                I'll start implementing these in the dashboard components.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread Messages -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-3">
+          <div class="flex items-start space-x-3">
+            <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-white text-xs font-medium">AJ</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-medium text-gray-900">Alice Johnson</span>
+                <span class="text-xs text-gray-500">9:47 AM</span>
+              </div>
+              <p class="text-xs text-gray-700 mt-1">
+                Thanks! I tried to make them more flexible than the previous version.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-3">
+            <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-white text-xs font-medium">CD</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs font-medium text-gray-900">Carol Davis</span>
+                <span class="text-xs text-gray-500">9:52 AM</span>
+              </div>
+              <p class="text-xs text-gray-700 mt-1">
+                The hover states are perfect. Much better than what we had before.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thread Input -->
+        <div class="border-t border-gray-200 h-20 p-4 flex-shrink-0">
+          <div class="flex items-end space-x-2 h-full">
+            <textarea
+              class="flex-1 resize-none border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+              rows="1"
+              placeholder="Reply in thread..."
+            ></textarea>
+            <button class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors h-8 whitespace-nowrap">
+              Reply
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 4: User Profile -->
+      <div class="stack-panel panel-hidden" id="panel-profile" data-priority="4">
+        <!-- Profile Header -->
+        <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+          <div class="flex items-center justify-between h-full">
+            <div class="flex items-center min-w-0">
+              <button class="xl:hidden mr-3 text-gray-600 hover:text-gray-900 p-1 back-btn" data-target="panel-channels">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+              </button>
+              <h1 class="text-lg font-semibold text-gray-900 truncate">Profile</h1>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600 p-2 close-profile-btn">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="flex-1 overflow-y-auto">
+          <!-- User Info -->
+          <div class="bg-white border-b border-gray-200 p-6">
+            <div class="text-center">
+              <div class="avatar-lg bg-blue-500 mx-auto mb-4">
+                <span class="text-white text-2xl font-medium">JD</span>
+              </div>
+              <h2 class="text-xl font-semibold text-gray-900">John Doe</h2>
+              <p class="text-sm text-gray-500">Team Lead</p>
+              <div class="flex items-center justify-center mt-2">
+                <div class="status-online mr-2"></div>
+                <span class="text-sm text-green-600">Online</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="bg-white border-b border-gray-200 p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Contact</h3>
+            <div class="space-y-3">
+              <div class="flex items-center">
+                <svg class="w-4 h-4 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-sm text-gray-700">john.doe@company.com</span>
+              </div>
+              <div class="flex items-center">
+                <svg class="w-4 h-4 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                </svg>
+                <span class="text-sm text-gray-700">+1 (555) 123-4567</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="bg-white border-b border-gray-200 p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Actions</h3>
+            <div class="space-y-2">
+              <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg flex items-center">
+                <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                Send Message
+              </button>
+              <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg flex items-center">
+                <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                </svg>
+                Start Call
+              </button>
+              <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg flex items-center">
+                <svg class="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+                Video Call
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="bg-white p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Recent Activity</h3>
+            <div class="space-y-3">
+              <div class="text-xs text-gray-600">
+                <span class="font-medium">Active in #general</span>
+                <span class="text-gray-400 ml-2">2 minutes ago</span>
+              </div>
+              <div class="text-xs text-gray-600">
+                <span class="font-medium">Updated status</span>
+                <span class="text-gray-400 ml-2">1 hour ago</span>
+              </div>
+              <div class="text-xs text-gray-600">
+                <span class="font-medium">Joined #design</span>
+                <span class="text-gray-400 ml-2">Yesterday</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get CSS variables for maintainable dimensions
+    const getCSSVariable = (name) => {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    };
+
+    const STACK_SLIDE_DURATION = parseInt(getCSSVariable('--stack-slide-duration'));
+
+    // Stack navigation state
+    const navigationStack = [];
+    let currentChannel = 'general';
+    let currentUser = null;
+
+    // Panel references
+    const panels = {
+      'panel-channels': document.getElementById('panel-channels'),
+      'panel-messages': document.getElementById('panel-messages'),
+      'panel-thread': document.getElementById('panel-thread'),
+      'panel-profile': document.getElementById('panel-profile')
+    };
+
+    // Initialize stack with channels panel
+    navigationStack.push('panel-channels');
+
+    // Responsive panel visibility management
+    function updateResponsivePanelVisibility() {
+      const width = window.innerWidth;
+      
+      // Mobile width protection - ensure panels never get 0 width on mobile
+      if (width < 768) {
+        updateMobilePanelVisibility();
+        return;
+      }
+      
+      // Desktop/Tablet: Always show channels and messages by default
+      showPanel('panel-channels');
+      showPanel('panel-messages');
+      
+      // Update tablet mode management
+      updateTabletModeManagement();
+    }
+
+    function showPanel(panelId) {
+      const panel = panels[panelId];
+      if (panel && window.innerWidth >= 768) {
+        panel.classList.remove('panel-hidden');
+        panel.classList.add('panel-visible');
+      }
+    }
+
+    function hidePanel(panelId) {
+      const panel = panels[panelId];
+      if (panel && window.innerWidth >= 768) {
+        panel.classList.remove('panel-visible');
+        panel.classList.add('panel-hidden');
+      }
+    }
+
+    function togglePanel(panelId) {
+      const panel = panels[panelId];
+      if (panel && window.innerWidth >= 768) {
+        if (panel.classList.contains('panel-hidden')) {
+          showPanel(panelId);
+        } else {
+          hidePanel(panelId);
+        }
+      }
+    }
+
+    // Tablet-specific mode management
+    function updateTabletModeManagement() {
+      const width = window.innerWidth;
+      const container = document.querySelector('.stack-container');
+      const threadPanel = panels['panel-thread'];
+      const profilePanel = panels['panel-profile'];
+      
+      if (width >= 768 && width < 1024) {
+        // Tablet mode: Only 2 panels max
+        const threadVisible = threadPanel && threadPanel.classList.contains('panel-visible');
+        const profileVisible = profilePanel && profilePanel.classList.contains('panel-visible');
+        
+        if (profileVisible) {
+          // Profile mode takes priority
+          container.classList.add('tablet-profile-mode');
+          container.classList.remove('tablet-thread-mode');
+          hidePanel('panel-messages');
+          hidePanel('panel-thread');
+        } else if (threadVisible) {
+          // Thread mode
+          container.classList.add('tablet-thread-mode');
+          container.classList.remove('tablet-profile-mode');
+          hidePanel('panel-messages');
+        } else {
+          // Normal mode - show messages
+          container.classList.remove('tablet-thread-mode', 'tablet-profile-mode');
+          showPanel('panel-messages');
+        }
+        
+        // Always hide profile on tablet unless explicitly opened
+        if (!profileVisible) {
+          hidePanel('panel-profile');
+        }
+      } else {
+        // Desktop mode
+        container.classList.remove('tablet-thread-mode', 'tablet-profile-mode');
+      }
+    }
+
+    // Stack navigation functions
+    function pushToStack(panelId, title = '') {
+      // Don't push if already on top of stack
+      if (navigationStack[navigationStack.length - 1] === panelId) return;
+      
+      navigationStack.push(panelId);
+      updatePanelVisibility();
+      updateBreadcrumb();
+      updateURL();
+    }
+
+    function popFromStack() {
+      if (navigationStack.length > 1) {
+        navigationStack.pop();
+        updatePanelVisibility();
+        updateBreadcrumb();
+        updateURL();
+      }
+    }
+
+    function updatePanelVisibility() {
+      if (window.innerWidth < 768) {
+        updateMobilePanelVisibility();
+      } else {
+        updateResponsivePanelVisibility();
+      }
+    }
+
+    function updateMobilePanelVisibility() {
+      const currentPanelId = navigationStack[navigationStack.length - 1];
+      
+      // Mobile: Show only current panel with proper width protection
+      Object.keys(panels).forEach(panelId => {
+        const panel = panels[panelId];
+        if (panelId === currentPanelId) {
+          panel.classList.add('active');
+          panel.classList.remove('previous', 'panel-hidden');
+          panel.classList.add('panel-visible');
+          // Ensure full width on mobile
+          panel.style.minWidth = '100%';
+          panel.style.maxWidth = '100%';
+          panel.style.width = '100%';
+        } else if (panelId === navigationStack[navigationStack.length - 2]) {
+          panel.classList.add('previous');
+          panel.classList.remove('active', 'panel-visible');
+          panel.classList.add('panel-hidden');
+        } else {
+          panel.classList.remove('active', 'previous', 'panel-visible');
+          panel.classList.add('panel-hidden');
+        }
+      });
+    }
+
+    function updateBreadcrumb() {
+      const breadcrumbContent = document.getElementById('breadcrumb-content');
+      const breadcrumbNav = document.getElementById('breadcrumb-nav');
+      
+      if (window.innerWidth >= 768 || navigationStack.length <= 1) {
+        breadcrumbNav.classList.add('hidden');
+        return;
+      }
+      
+      breadcrumbNav.classList.remove('hidden');
+      breadcrumbContent.innerHTML = '';
+      
+      navigationStack.forEach((panelId, index) => {
+        if (index > 0) {
+          const separator = document.createElement('span');
+          separator.className = 'breadcrumb-separator';
+          separator.textContent = '/';
+          breadcrumbContent.appendChild(separator);
+        }
+        
+        const item = document.createElement('button');
+        if (index === navigationStack.length - 1) {
+          item.className = 'breadcrumb-current';
+        } else {
+          item.className = 'breadcrumb-item';
+          item.addEventListener('click', () => {
+            // Pop to this level
+            while (navigationStack.length > index + 1) {
+              navigationStack.pop();
+            }
+            updatePanelVisibility();
+            updateBreadcrumb();
+            updateURL();
+          });
+        }
+        
+        item.textContent = getPanelTitle(panelId);
+        breadcrumbContent.appendChild(item);
+      });
+    }
+
+    function getPanelTitle(panelId) {
+      switch (panelId) {
+        case 'panel-channels': return 'Channels';
+        case 'panel-messages': return currentUser ? `@${currentUser}` : `#${currentChannel}`;
+        case 'panel-thread': return 'Thread';
+        case 'panel-profile': return 'Profile';
+        default: return 'Unknown';
+      }
+    }
+
+    function updateURL() {
+      const path = navigationStack.map(panelId => {
+        switch (panelId) {
+          case 'panel-channels': return '';
+          case 'panel-messages': return currentUser ? `dm/${currentUser}` : `channel/${currentChannel}`;
+          case 'panel-thread': return 'thread';
+          case 'panel-profile': return 'profile';
+          default: return '';
+        }
+      }).filter(Boolean).join('/');
+      
+      const newPath = path ? `/${path}` : '/';
+      history.pushState({ stack: [...navigationStack] }, '', newPath);
+    }
+
+    function updateMessageTitle() {
+      const title = currentUser ? `@${currentUser}` : `#${currentChannel}`;
+      const messagesTitle = document.getElementById('messages-title');
+      if (messagesTitle) {
+        messagesTitle.textContent = title;
+      }
+    }
+
+    // Close panel functions
+    function closePanel(panelId) {
+      if (window.innerWidth < 768) {
+        // Mobile: Pop from stack
+        popFromStack();
+      } else {
+        // Desktop/Tablet: Hide the specific panel
+        hidePanel(panelId);
+        updateTabletModeManagement();
+      }
+    }
+
+    // Event listeners for channel buttons
+    document.querySelectorAll('.channel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const channel = btn.getAttribute('data-channel');
+        currentChannel = channel;
+        currentUser = null;
+        
+        // Update active state
+        document.querySelectorAll('.channel-btn, .dm-btn').forEach(b => {
+          b.classList.remove('text-white', 'bg-blue-600');
+          b.classList.add('text-gray-700', 'hover:bg-gray-100');
+        });
+        btn.classList.remove('text-gray-700', 'hover:bg-gray-100');
+        btn.classList.add('text-white', 'bg-blue-600');
+        
+        updateMessageTitle();
+        
+        if (window.innerWidth < 768) {
+          pushToStack('panel-messages');
+        } else {
+          showPanel('panel-messages');
+          // On tablet, if thread was open, close it to show messages
+          if (window.innerWidth < 1024) {
+            hidePanel('panel-thread');
+            hidePanel('panel-profile');
+            updateTabletModeManagement();
+          }
+        }
+      });
+    });
+
+    // Event listeners for DM buttons
+    document.querySelectorAll('.dm-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const user = btn.getAttribute('data-user');
+        currentUser = user;
+        currentChannel = null;
+        
+        // Update active state
+        document.querySelectorAll('.channel-btn, .dm-btn').forEach(b => {
+          b.classList.remove('text-white', 'bg-blue-600');
+          b.classList.add('text-gray-700', 'hover:bg-gray-100');
+        });
+        btn.classList.remove('text-gray-700', 'hover:bg-gray-100');
+        btn.classList.add('text-white', 'bg-blue-600');
+        
+        updateMessageTitle();
+        
+        if (window.innerWidth < 768) {
+          pushToStack('panel-messages');
+        } else {
+          showPanel('panel-messages');
+          // On tablet, if thread was open, close it to show messages
+          if (window.innerWidth < 1024) {
+            hidePanel('panel-thread');
+            hidePanel('panel-profile');
+            updateTabletModeManagement();
+          }
+        }
+      });
+    });
+
+    // Event listeners for thread buttons
+    document.querySelectorAll('.thread-btn, .thread-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+          pushToStack('panel-thread');
+        } else {
+          showPanel('panel-thread');
+          updateTabletModeManagement();
+        }
+      });
+    });
+
+    // Event listeners for profile buttons
+    document.querySelectorAll('.user-profile-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+          pushToStack('panel-profile');
+        } else if (window.innerWidth >= 1024) {
+          // Only show profile on desktop, not tablet
+          showPanel('panel-profile');
+        } else {
+          // On tablet, show profile in main area
+          showPanel('panel-profile');
+          updateTabletModeManagement();
+        }
+      });
+    });
+
+    // Event listeners for back buttons
+    document.querySelectorAll('.back-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-target');
+        if (target) {
+          // Pop to specific panel
+          while (navigationStack.length > 0 && navigationStack[navigationStack.length - 1] !== target) {
+            navigationStack.pop();
+          }
+          updatePanelVisibility();
+          updateBreadcrumb();
+          updateURL();
+        } else {
+          // Just pop one level
+          popFromStack();
+        }
+      });
+    });
+
+    // Event listeners for close buttons
+    document.querySelectorAll('.close-thread-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closePanel('panel-thread');
+      });
+    });
+
+    document.querySelectorAll('.close-profile-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closePanel('panel-profile');
+      });
+    });
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', (e) => {
+      if (e.state && e.state.stack) {
+        navigationStack.length = 0;
+        navigationStack.push(...e.state.stack);
+        updatePanelVisibility();
+        updateBreadcrumb();
+      }
+    });
+
+    // Handle window resize with mobile width protection
+    window.addEventListener('resize', () => {
+      // Clear any inline styles that might interfere
+      Object.values(panels).forEach(panel => {
+        if (window.innerWidth >= 768) {
+          panel.style.minWidth = '';
+          panel.style.maxWidth = '';
+          panel.style.width = '';
+        }
+      });
+      
+      updatePanelVisibility();
+      updateBreadcrumb();
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (window.innerWidth < 768) {
+          popFromStack();
+        } else {
+          // Close the rightmost panel on desktop
+          if (panels['panel-profile'].classList.contains('panel-visible')) {
+            closePanel('panel-profile');
+          } else if (panels['panel-thread'].classList.contains('panel-visible')) {
+            closePanel('panel-thread');
+          }
+        }
+      }
+    });
+
+    // Auto-expand textarea
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    });
+
+    // Initialize
+    updatePanelVisibility();
+    updateBreadcrumb();
+  </script>
+</body>
+</html>

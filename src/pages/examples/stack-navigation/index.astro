@@ -1,0 +1,558 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ExampleFrame from '../../../components/ExampleFrame.astro';
+import { examples } from '../../../components/ExampleData.js';
+---
+
+<Layout title="Stack Navigation Layout - Responsive Chat Layouts">
+  <ExampleFrame title="Stack Navigation Layout" exampleId="stack-navigation" examples={examples} hideNavigation={true}>
+    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      
+      <article class="prose prose-lg max-w-none">
+        <h1>Stack Navigation Layout</h1>
+        
+        <p class="lead">
+          The stack navigation pattern implements iOS-style hierarchical push/pop navigation with intelligent responsive behavior. On mobile, it provides focused single-panel navigation with breadcrumb trails. On wider screens, it reveals multiple stack levels simultaneously with flexible panel management, creating an efficient multi-panel workspace that adapts to available screen real estate.
+        </p>
+
+        <!-- Quick Actions -->
+        <div class="not-prose flex flex-wrap gap-3 my-8">
+          <a 
+            href="/examples/stack-navigation/demo/"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            View Live Demo
+          </a>
+          <a 
+            href="#implementation"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Implementation Details
+          </a>
+          <a 
+            href="#responsive-behavior"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Responsive Behavior
+          </a>
+        </div>
+
+        <h2>Pattern Overview</h2>
+
+        <h3>Mobile Layout (&lt;768px)</h3>
+        <ul>
+          <li><strong>Single Panel Focus</strong>: Only one panel visible at a time for maximum clarity</li>
+          <li><strong>Push/Pop Navigation</strong>: New views push onto stack, back button pops the stack</li>
+          <li><strong>Breadcrumb Trail</strong>: Shows navigation path and allows jumping to any level</li>
+          <li><strong>iOS-Style Transitions</strong>: Smooth slide animations with proper timing curves</li>
+          <li><strong>Hardware Back Support</strong>: Browser back button integrates with navigation stack</li>
+          <li><strong>Deep Linking</strong>: URLs reflect current stack state for bookmarking</li>
+          <li><strong>Width Protection</strong>: Panels maintain 100% width to prevent layout issues</li>
+        </ul>
+
+        <h3 id="responsive-behavior">Responsive Panel Management</h3>
+        <ul>
+          <li><strong>Tablet (768px-1024px)</strong>: Intelligent 2-panel layout with priority system</li>
+          <li><strong>Desktop (1024px+)</strong>: Multi-panel layout with flexible main content area</li>
+          <li><strong>Panel Priority</strong>: Profile &gt; Thread &gt; Messages when space is constrained</li>
+          <li><strong>Flexible Sizing</strong>: Messages panel expands/contracts based on available space</li>
+          <li><strong>Smooth Transitions</strong>: Panels animate in/out with max-width transitions</li>
+        </ul>
+
+        <h2>Key Benefits</h2>
+
+        <div class="not-prose bg-green-50 border border-green-200 rounded-lg p-6 my-6">
+          <ul class="text-green-800 space-y-2 mb-0">
+            <li>✅ <strong>Familiar iOS Pattern</strong>: Users understand push/pop navigation from mobile apps</li>
+            <li>✅ <strong>Hierarchical Content</strong>: Perfect for deep content structures with clear relationships</li>
+            <li>✅ <strong>Intelligent Responsive</strong>: Automatically adapts to screen width with priority system</li>
+            <li>✅ <strong>Flexible Panel Sizing</strong>: Main content area expands/contracts based on available space</li>
+            <li>✅ <strong>Breadcrumb Navigation</strong>: Clear path visualization and quick level jumping</li>
+            <li>✅ <strong>URL Synchronization</strong>: Deep linking and browser history integration</li>
+            <li>✅ <strong>Efficient Desktop Use</strong>: Multiple panels visible simultaneously on wide screens</li>
+            <li>✅ <strong>Production Ready</strong>: Robust state management with mobile width protection</li>
+          </ul>
+        </div>
+
+        <h2>Responsive Panel Priority System</h2>
+
+        <h3>Panel Hierarchy and Sizing</h3>
+        <div class="not-prose overflow-x-auto">
+          <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Panel</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Width</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Tablet Behavior</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Desktop Behavior</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Channels</td>
+                <td class="px-4 py-2 text-sm text-gray-600">320px (fixed)</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Always visible</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Always visible</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Messages</td>
+                <td class="px-4 py-2 text-sm text-gray-600">320px-768px (flexible)</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Hidden when thread/profile open</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Flexible, expands when others close</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Thread</td>
+                <td class="px-4 py-2 text-sm text-gray-600">384px (fixed, wider)</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Takes main space when open</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Fixed width, can coexist</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Profile</td>
+                <td class="px-4 py-2 text-sm text-gray-600">320px (fixed)</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Takes main space, hides thread</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Fixed width, rightmost position</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Tablet Priority Logic</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <h4 class="text-blue-900 font-semibold mb-2">Two-Panel Maximum on Tablet</h4>
+          <ul class="text-blue-800 text-sm space-y-1">
+            <li>• <strong>Default</strong>: Channels + Messages</li>
+            <li>• <strong>Thread Open</strong>: Channels + Thread (Messages hidden)</li>
+            <li>• <strong>Profile Open</strong>: Channels + Profile (Messages and Thread hidden)</li>
+            <li>• <strong>Priority Order</strong>: Profile &gt; Thread &gt; Messages</li>
+          </ul>
+        </div>
+
+        <h2 id="implementation">Implementation Architecture</h2>
+
+        <h3>CSS Variables for Maintainability</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>:root &#123;
+  --channels-panel-width: 20rem;       /* 320px channels panel */
+  --thread-panel-width: 24rem;         /* 384px thread panel (wider) */
+  --profile-panel-width: 20rem;        /* 320px profile panel */
+  --main-content-min-width: 20rem;     /* 320px minimum for main content */
+  --main-content-max-width: 48rem;     /* 768px maximum for main content */
+  --header-height: 4rem;               /* 64px header height */
+  --stack-slide-duration: 350ms;       /* Stack transition timing */
+  --stack-slide-easing: cubic-bezier(0.4, 0, 0.2, 1); /* Material motion */
+  --panel-transition: max-width 0.3s ease-out, opacity 0.3s ease-out;
+&#125;</code></pre>
+        </div>
+
+        <h3>Flexible Panel Sizing System</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>/* Channels panel - fixed width */
+.stack-panel[data-priority="1"] &#123;
+  width: var(--channels-panel-width);
+  min-width: var(--channels-panel-width);
+  max-width: var(--channels-panel-width);
+&#125;
+
+/* Messages panel - flexible width */
+.stack-panel[data-priority="2"] &#123;
+  flex: 1;
+  min-width: var(--main-content-min-width);
+  max-width: var(--main-content-max-width);
+&#125;
+
+/* Thread panel - wider fixed width */
+.stack-panel[data-priority="3"] &#123;
+  width: var(--thread-panel-width);
+  min-width: var(--thread-panel-width);
+  max-width: var(--thread-panel-width);
+&#125;</code></pre>
+        </div>
+
+        <h3>Panel Visibility Management</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>/* Panel visibility states - using max-width for smooth animations */
+.stack-panel.panel-hidden &#123;
+  max-width: 0 !important;
+  min-width: 0 !important;
+  opacity: 0;
+  overflow: hidden;
+  border-right: none;
+&#125;
+
+.stack-panel.panel-visible &#123;
+  opacity: 1;
+&#125;</code></pre>
+        </div>
+
+        <h3>Tablet Mode Management</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>/* Tablet-specific rules: Max 2 panels visible */
+@media (min-width: 768px) and (max-width: 1023px) &#123;
+  /* Thread mode: hide messages, expand thread */
+  .tablet-thread-mode .stack-panel[data-priority="2"] &#123;
+    max-width: 0 !important;
+    opacity: 0;
+  &#125;
+  
+  .tablet-thread-mode .stack-panel[data-priority="3"] &#123;
+    flex: 1;
+    width: auto !important;
+    max-width: none !important;
+  &#125;
+  
+  /* Profile mode: hide messages and thread, expand profile */
+  .tablet-profile-mode .stack-panel[data-priority="2"],
+  .tablet-profile-mode .stack-panel[data-priority="3"] &#123;
+    max-width: 0 !important;
+    opacity: 0;
+  &#125;
+  
+  .tablet-profile-mode .stack-panel[data-priority="4"] &#123;
+    flex: 1;
+    width: auto !important;
+    max-width: none !important;
+  &#125;
+&#125;</code></pre>
+        </div>
+
+        <h3>Mobile Width Protection</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>/* Mobile width protection - prevent 0 width issues */
+@media (max-width: 767px) &#123;
+  .stack-panel &#123;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  &#125;
+&#125;
+
+// JavaScript mobile protection
+function updateMobilePanelVisibility() &#123;
+  const currentPanelId = navigationStack[navigationStack.length - 1];
+  
+  Object.keys(panels).forEach(panelId =&gt; &#123;
+    const panel = panels[panelId];
+    if (panelId === currentPanelId) &#123;
+      // Ensure full width on mobile
+      panel.style.minWidth = '100%';
+      panel.style.maxWidth = '100%';
+      panel.style.width = '100%';
+    &#125;
+  &#125;);
+&#125;</code></pre>
+        </div>
+
+        <h2>Advanced State Management</h2>
+
+        <h3>Responsive Panel Logic</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>function updateTabletModeManagement() &#123;
+  const width = window.innerWidth;
+  const container = document.querySelector('.stack-container');
+  
+  if (width &gt;= 768 && width &lt; 1024) &#123;
+    // Tablet mode: Only 2 panels max
+    const threadVisible = threadPanel.classList.contains('panel-visible');
+    const profileVisible = profilePanel.classList.contains('panel-visible');
+    
+    if (profileVisible) &#123;
+      // Profile mode takes priority
+      container.classList.add('tablet-profile-mode');
+      hidePanel('panel-messages');
+      hidePanel('panel-thread');
+    &#125; else if (threadVisible) &#123;
+      // Thread mode
+      container.classList.add('tablet-thread-mode');
+      hidePanel('panel-messages');
+    &#125; else &#123;
+      // Normal mode - show messages
+      container.classList.remove('tablet-thread-mode', 'tablet-profile-mode');
+      showPanel('panel-messages');
+    &#125;
+  &#125;
+&#125;</code></pre>
+        </div>
+
+        <h3>Panel Show/Hide Functions</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>function showPanel(panelId) &#123;
+  const panel = panels[panelId];
+  if (panel && window.innerWidth &gt;= 768) &#123;
+    panel.classList.remove('panel-hidden');
+    panel.classList.add('panel-visible');
+  &#125;
+&#125;
+
+function hidePanel(panelId) &#123;
+  const panel = panels[panelId];
+  if (panel && window.innerWidth &gt;= 768) &#123;
+    panel.classList.remove('panel-visible');
+    panel.classList.add('panel-hidden');
+  &#125;
+&#125;
+
+function closePanel(panelId) &#123;
+  if (window.innerWidth &lt; 768) &#123;
+    // Mobile: Pop from stack
+    popFromStack();
+  &#125; else &#123;
+    // Desktop/Tablet: Hide the specific panel
+    hidePanel(panelId);
+    updateTabletModeManagement();
+  &#125;
+&#125;</code></pre>
+        </div>
+
+        <h2>Breadcrumb Navigation System</h2>
+
+        <h3>Dynamic Breadcrumb Generation</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>function updateBreadcrumb() &#123;
+  const breadcrumbContent = document.getElementById('breadcrumb-content');
+  const breadcrumbNav = document.getElementById('breadcrumb-nav');
+  
+  if (window.innerWidth &gt;= 768 || navigationStack.length &lt;= 1) &#123;
+    breadcrumbNav.classList.add('hidden');
+    return;
+  &#125;
+  
+  breadcrumbNav.classList.remove('hidden');
+  breadcrumbContent.innerHTML = '';
+  
+  navigationStack.forEach((panelId, index) =&gt; &#123;
+    if (index &gt; 0) &#123;
+      const separator = document.createElement('span');
+      separator.className = 'breadcrumb-separator';
+      separator.textContent = '/';
+      breadcrumbContent.appendChild(separator);
+    &#125;
+    
+    const item = document.createElement('button');
+    if (index === navigationStack.length - 1) &#123;
+      item.className = 'breadcrumb-current';
+    &#125; else &#123;
+      item.className = 'breadcrumb-item';
+      item.addEventListener('click', () =&gt; &#123;
+        // Pop to this level
+        while (navigationStack.length &gt; index + 1) &#123;
+          navigationStack.pop();
+        &#125;
+        updatePanelVisibility();
+        updateBreadcrumb();
+        updateURL();
+      &#125;);
+    &#125;
+    
+    item.textContent = getPanelTitle(panelId);
+    breadcrumbContent.appendChild(item);
+  &#125;);
+&#125;</code></pre>
+        </div>
+
+        <h2>URL Synchronization and Deep Linking</h2>
+
+        <h3>URL Structure</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>// URL patterns for different stack states
+/                           // Channels only
+/channel/general            // Channels → Messages (general)
+/channel/general/thread     // Channels → Messages → Thread
+/dm/alice                   // Channels → Messages (Alice DM)
+/dm/alice/thread           // Channels → Messages → Thread (Alice DM)
+/profile                   // Channels → Profile</code></pre>
+        </div>
+
+        <h3>URL Update Implementation</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code>function updateURL() &#123;
+  const path = navigationStack.map(panelId =&gt; &#123;
+    switch (panelId) &#123;
+      case 'panel-channels': return '';
+      case 'panel-messages': 
+        return currentUser ? `dm/$&#123;currentUser&#125;` : `channel/$&#123;currentChannel&#125;`;
+      case 'panel-thread': return 'thread';
+      case 'panel-profile': return 'profile';
+      default: return '';
+    &#125;
+  &#125;).filter(Boolean).join('/');
+  
+  const newPath = path ? `/$&#123;path&#125;` : '/';
+  history.pushState(&#123; stack: [...navigationStack] &#125;, '', newPath);
+&#125;
+
+// Handle browser back/forward
+window.addEventListener('popstate', (e) =&gt; &#123;
+  if (e.state && e.state.stack) &#123;
+    navigationStack.length = 0;
+    navigationStack.push(...e.state.stack);
+    updatePanelVisibility();
+    updateBreadcrumb();
+  &#125;
+&#125;);</code></pre>
+        </div>
+
+        <h2>Performance Optimization</h2>
+
+        <h3>Animation Performance</h3>
+        <ul>
+          <li><strong>Hardware Acceleration</strong>: Use <code>transform</code> and <code>opacity</code> for all animations</li>
+          <li><strong>Max-Width Transitions</strong>: Smooth panel show/hide with <code>max-width</code> instead of <code>width</code></li>
+          <li><strong>Material Motion</strong>: Cubic-bezier timing curves for natural feel</li>
+          <li><strong>Layer Optimization</strong>: Proper z-index management for smooth transitions</li>
+          <li><strong>Frame Rate</strong>: 60fps animations with optimized timing</li>
+        </ul>
+
+        <h3>Memory Management</h3>
+        <ul>
+          <li><strong>Panel Lifecycle</strong>: Efficient creation and destruction of panel content</li>
+          <li><strong>Event Cleanup</strong>: Remove event listeners when panels are destroyed</li>
+          <li><strong>State Preservation</strong>: Maintain scroll position and form state across navigation</li>
+          <li><strong>Resize Handling</strong>: Efficient window resize event handling with debouncing</li>
+        </ul>
+
+        <h2>Accessibility Implementation</h2>
+
+        <ul>
+          <li><strong>Keyboard Navigation</strong>: Tab order follows stack hierarchy</li>
+          <li><strong>Focus Management</strong>: Focus moves to appropriate elements on navigation</li>
+          <li><strong>Screen Reader Support</strong>: Announce navigation changes and stack updates</li>
+          <li><strong>ARIA Landmarks</strong>: Proper region labeling for each panel</li>
+          <li><strong>Reduced Motion</strong>: Respect <code>prefers-reduced-motion</code> setting</li>
+          <li><strong>Touch Targets</strong>: Minimum 44px touch targets for all interactive elements</li>
+          <li><strong>Color Independence</strong>: Don't rely solely on color for navigation state</li>
+          <li><strong>Escape Key</strong>: Close rightmost panel or pop stack on Escape</li>
+        </ul>
+
+        <h2>Customization Guide</h2>
+
+        <h3>Adjusting Panel Widths</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Simply update the CSS variables:</strong></p>
+          <pre class="text-sm"><code>:root &#123;
+  --channels-panel-width: 24rem;  /* 384px instead of 320px */
+  --thread-panel-width: 28rem;    /* 448px instead of 384px */
+&#125;</code></pre>
+          <p class="text-blue-800 text-sm mt-2">This automatically updates all panel widths across all breakpoints.</p>
+        </div>
+
+        <h3>Modifying Transition Timing</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Adjust animation timing and easing:</strong></p>
+          <pre class="text-sm"><code>:root &#123;
+  --stack-slide-duration: 300ms;  /* Faster transitions */
+  --stack-slide-easing: ease-out; /* Different easing curve */
+  --panel-transition: max-width 0.2s ease-in-out, opacity 0.2s ease-in-out;
+&#125;</code></pre>
+        </div>
+
+        <h3>Adding Custom Panels</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Extend the stack system:</strong></p>
+          <pre class="text-sm"><code>&lt;!-- Add new panel with priority 5 --&gt;
+&lt;div class="stack-panel panel-hidden" id="panel-settings" data-priority="5"&gt;
+  &lt;!-- Panel content --&gt;
+&lt;/div&gt;
+
+/* CSS for new panel */
+.stack-panel[data-priority="5"] &#123;
+  width: var(--channels-panel-width);
+  min-width: var(--channels-panel-width);
+  max-width: var(--channels-panel-width);
+&#125;</code></pre>
+        </div>
+
+        <h2>Browser Support and Fallbacks</h2>
+
+        <div class="not-prose overflow-x-auto">
+          <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Feature</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Modern Browsers</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Fallback</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">CSS Transforms</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Hardware-accelerated sliding</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Opacity transitions</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Max-Width Transitions</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Smooth panel animations</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Display none/block</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">History API</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Full URL synchronization</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Hash-based navigation</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">CSS Variables</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Dynamic theming</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Fixed values in CSS</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Flexbox</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Flexible panel layout</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Float-based layout</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-6 my-8">
+          <h3 class="text-lg font-semibold text-blue-900 mb-3">Stack Navigation Highlights</h3>
+          <ul class="text-blue-800 space-y-1 mb-0">
+            <li>• <strong>Production Ready</strong>: Robust implementation with mobile width protection</li>
+            <li>• <strong>Flexible Panel Sizing</strong>: Main content expands/contracts based on available space</li>
+            <li>• <strong>Intelligent Priority System</strong>: Profile &gt; Thread &gt; Messages on constrained screens</li>
+            <li>• <strong>Smooth Animations</strong>: Max-width transitions for seamless panel show/hide</li>
+            <li>• <strong>iOS-Style Navigation</strong>: Familiar push/pop pattern with smooth transitions</li>
+            <li>• <strong>Breadcrumb System</strong>: Visual navigation path with quick level jumping</li>
+            <li>• <strong>URL Synchronization</strong>: Deep linking and browser history integration</li>
+            <li>• <strong>Multi-Panel Desktop</strong>: Efficient use of wide screens with automatic panel revelation</li>
+          </ul>
+        </div>
+
+        <h2>When to Choose Stack Navigation</h2>
+
+        <div class="not-prose grid md:grid-cols-2 gap-6 my-8">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-green-900 mb-3">Ideal Use Cases</h3>
+            <ul class="text-green-800 space-y-1 text-sm">
+              <li>• Deep hierarchical content structures</li>
+              <li>• iOS-style mobile applications</li>
+              <li>• Clear parent-child content relationships</li>
+              <li>• Applications requiring breadcrumb navigation</li>
+              <li>• Multi-level drill-down interfaces</li>
+              <li>• Wide screen optimization needed</li>
+              <li>• Flexible panel sizing requirements</li>
+            </ul>
+          </div>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-yellow-900 mb-3">Consider Alternatives When</h3>
+            <ul class="text-yellow-800 space-y-1 text-sm">
+              <li>• Flat information architecture</li>
+              <li>• Equal-priority content sections</li>
+              <li>• Simple two-level navigation</li>
+              <li>• Desktop-first application design</li>
+              <li>• Limited screen real estate</li>
+              <li>• Complex multi-dimensional navigation</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>
+          The stack navigation pattern excels in applications with deep hierarchical content where users 
+          need to drill down through multiple levels while maintaining context. Its intelligent responsive 
+          behavior automatically adapts to screen width, revealing more stack levels on wider screens for 
+          efficient multi-panel workflows. The flexible panel sizing system ensures optimal use of available 
+          space, while the robust state management and URL synchronization make it ideal for complex 
+          applications requiring bookmarkable deep links and browser history integration.
+        </p>
+      </article>
+    </div>
+  </ExampleFrame>
+</Layout>

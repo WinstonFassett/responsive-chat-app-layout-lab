@@ -1,0 +1,1024 @@
+---
+// Modal Overlays Demo Content - Production Ready Implementation
+---
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modal Overlays Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* CSS Variables for Maintainable Dimensions */
+    :root {
+      --sidebar-width: 20rem;           /* 320px sidebar */
+      --header-height: 4rem;            /* 64px header height */
+      --modal-sm: 25rem;                /* Small modal width */
+      --modal-md: 37.5rem;              /* Medium modal width */
+      --modal-lg: 50rem;                /* Large modal width */
+      --sheet-handle-height: 1.5rem;    /* Bottom sheet handle */
+      --backdrop-opacity: 0.5;          /* Backdrop transparency */
+      --modal-radius: 0.75rem;          /* Modal border radius */
+      --transition-duration: 300ms;     /* Standard animation duration */
+      --transition-easing: ease-out;    /* Standard easing */
+      --spring-duration: 400ms;         /* Spring animation duration */
+      --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring easing */
+    }
+    
+    html, body { height: 100%; margin: 0; padding: 0; }
+    
+    /* Standardized Avatar Patterns */
+    .avatar-xs { @apply w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-sm { @apply w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-md { @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-lg { @apply w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-xl { @apply w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0; }
+    
+    /* Status Indicator Patterns */
+    .status-online { @apply w-2 h-2 bg-green-400 rounded-full flex-shrink-0; }
+    .status-away { @apply w-2 h-2 bg-yellow-400 rounded-full flex-shrink-0; }
+    .status-offline { @apply w-2 h-2 bg-gray-400 rounded-full flex-shrink-0; }
+    
+    /* Modal Portal Container */
+    .modal-portal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    
+    .modal-portal.active {
+      pointer-events: auto;
+    }
+    
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, var(--backdrop-opacity));
+      opacity: 0;
+      transition: opacity var(--transition-duration) var(--transition-easing);
+    }
+    
+    .modal-backdrop.active {
+      opacity: 1;
+    }
+    
+    /* Desktop Modal Container */
+    .modal-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity var(--transition-duration) var(--transition-easing),
+                  transform var(--transition-duration) var(--transition-easing);
+    }
+    
+    .modal-container.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    /* Modal Content */
+    .modal-content {
+      background: white;
+      border-radius: var(--modal-radius);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Modal Size Variants */
+    .modal-sm { width: var(--modal-sm); max-width: 90vw; }
+    .modal-md { width: var(--modal-md); max-width: 90vw; }
+    .modal-lg { width: var(--modal-lg); max-width: 90vw; }
+    .modal-fullscreen { width: 95vw; height: 90vh; }
+    
+    /* Bottom Sheet (Mobile) */
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: var(--modal-radius) var(--modal-radius) 0 0;
+      transform: translateY(100%);
+      transition: transform var(--spring-duration) var(--spring-easing);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      touch-action: none;
+    }
+    
+    .bottom-sheet.active {
+      transform: translateY(0);
+    }
+    
+    .bottom-sheet.dragging {
+      transition: none;
+    }
+    
+    /* Bottom Sheet Handle */
+    .sheet-handle {
+      width: 2rem;
+      height: 0.25rem;
+      background: #d1d5db;
+      border-radius: 0.125rem;
+      margin: 0.75rem auto 0.5rem;
+      cursor: grab;
+      flex-shrink: 0;
+    }
+    
+    .sheet-handle:active {
+      cursor: grabbing;
+    }
+    
+    /* Focus Trap */
+    .focus-trap {
+      outline: none;
+    }
+    
+    /* Responsive Modal Behavior */
+    @media (max-width: 767px) {
+      .modal-container {
+        display: none;
+      }
+      
+      .bottom-sheet {
+        display: flex;
+      }
+    }
+    
+    @media (min-width: 768px) {
+      .bottom-sheet {
+        display: none;
+      }
+      
+      .modal-container {
+        display: flex;
+      }
+    }
+    
+    /* Safe Area Support for Mobile */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .bottom-sheet {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+    }
+    
+    /* Animation States */
+    .fade-in {
+      animation: fadeIn var(--transition-duration) var(--transition-easing);
+    }
+    
+    .slide-up {
+      animation: slideUp var(--spring-duration) var(--spring-easing);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    
+    /* Prevent body scroll when modal is open */
+    body.modal-open {
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+  <div class="h-full flex overflow-hidden bg-gray-100">
+    
+    <!-- Sidebar -->
+    <div class="bg-white border-r border-gray-200 flex flex-col w-[var(--sidebar-width)] hidden lg:flex">
+      <!-- Sidebar Header -->
+      <div class="flex items-center h-[var(--header-height)] px-4 border-b border-gray-200 bg-white flex-shrink-0">
+        <h2 class="text-lg font-semibold text-gray-900">ChatApp</h2>
+      </div>
+
+      <!-- Channel List -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-4">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Channels</h3>
+          <div class="space-y-1">
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg">
+              <span class="mr-2">#</span>
+              general
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <span class="mr-2">#</span>
+              random
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <span class="mr-2">#</span>
+              design
+            </a>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Direct Messages</h3>
+          <div class="space-y-1">
+            <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg user-profile-trigger" data-user="alice">
+              <div class="status-online mr-3"></div>
+              Alice Johnson
+            </button>
+            <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg user-profile-trigger" data-user="bob">
+              <div class="status-away mr-3"></div>
+              Bob Smith
+            </button>
+            <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg user-profile-trigger" data-user="carol">
+              <div class="status-offline mr-3"></div>
+              Carol Davis
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Profile -->
+      <div class="h-20 p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+        <div class="flex items-center h-full">
+          <button class="avatar-sm bg-blue-500 user-profile-trigger" data-user="john">
+            <span class="text-white text-sm font-medium">JD</span>
+          </button>
+          <div class="ml-3 flex-1">
+            <p class="text-sm font-medium text-gray-700">John Doe</p>
+            <p class="text-xs text-gray-500">Online</p>
+          </div>
+          <button class="text-gray-400 hover:text-gray-600 p-1 settings-trigger">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Mobile Header with Menu -->
+      <div class="lg:hidden bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+        <div class="flex items-center justify-between h-full">
+          <div class="flex items-center">
+            <button class="mr-4 text-gray-600 hover:text-gray-900 p-2 -ml-2 mobile-menu-trigger">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-900"># general</h1>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button class="text-gray-400 hover:text-gray-600 p-2 user-profile-trigger" data-user="john">
+              <div class="avatar-sm bg-blue-500">
+                <span class="text-white text-sm font-medium">JD</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Header -->
+      <div class="hidden lg:flex bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+        <div class="flex items-center justify-between h-full w-full">
+          <div class="flex items-center min-w-0">
+            <h1 class="text-lg font-semibold text-gray-900 truncate"># general</h1>
+            <span class="ml-2 text-sm text-gray-500">234 members</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button class="text-gray-400 hover:text-gray-600 p-2 media-viewer-trigger">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </button>
+            <button class="text-gray-400 hover:text-gray-600 p-2 settings-trigger">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- Message with Image -->
+        <div class="flex items-start space-x-3">
+          <button class="avatar-sm bg-green-500 user-profile-trigger" data-user="alice">
+            <span class="text-white text-sm font-medium">AJ</span>
+          </button>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-gray-900">Alice Johnson</span>
+              <span class="text-xs text-gray-500">Today at 9:42 AM</span>
+            </div>
+            <p class="text-sm text-gray-700 mt-1">
+              Check out these new design mockups! What do you think?
+            </p>
+            <div class="mt-2">
+              <button class="media-viewer-trigger block">
+                <img 
+                  src="https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop" 
+                  alt="Design mockup" 
+                  class="rounded-lg max-w-xs h-48 object-cover hover:opacity-90 transition-opacity"
+                  data-full-src="https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regular Message -->
+        <div class="flex items-start space-x-3">
+          <button class="avatar-sm bg-blue-500 user-profile-trigger" data-user="bob">
+            <span class="text-white text-sm font-medium">BS</span>
+          </button>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-gray-900">Bob Smith</span>
+              <span class="text-xs text-gray-500">Today at 9:45 AM</span>
+            </div>
+            <p class="text-sm text-gray-700 mt-1">
+              These look fantastic! The color scheme really works well. 
+              <button class="text-blue-600 hover:text-blue-800 underline confirmation-trigger" data-action="approve">
+                I approve these designs
+              </button>
+            </p>
+          </div>
+        </div>
+
+        <!-- Message with Action -->
+        <div class="flex items-start space-x-3">
+          <button class="avatar-sm bg-purple-500 user-profile-trigger" data-user="carol">
+            <span class="text-white text-sm font-medium">CD</span>
+          </button>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-gray-900">Carol Davis</span>
+              <span class="text-xs text-gray-500">Today at 10:12 AM</span>
+            </div>
+            <p class="text-sm text-gray-700 mt-1">
+              Should we 
+              <button class="text-blue-600 hover:text-blue-800 underline form-trigger" data-form="create-channel">
+                create a dedicated design channel
+              </button> 
+              for these discussions?
+            </p>
+          </div>
+        </div>
+
+        <!-- System Message -->
+        <div class="flex justify-center">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-sm text-blue-800">
+            <button class="hover:underline user-profile-trigger" data-user="mike">Mike Johnson</button> joined the channel
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <div class="border-t border-gray-200 bg-white h-20 p-4 flex-shrink-0">
+        <div class="flex items-end space-x-3 h-full">
+          <div class="flex-1">
+            <textarea
+              class="w-full resize-none border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows="1"
+              placeholder="Type a message..."
+            ></textarea>
+          </div>
+          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors h-10">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Portal -->
+  <div id="modal-portal" class="modal-portal">
+    <!-- Backdrop -->
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    
+    <!-- Desktop Modal Container -->
+    <div id="modal-container" class="modal-container">
+      <div id="modal-content" class="modal-content">
+        <!-- Modal content will be inserted here -->
+      </div>
+    </div>
+    
+    <!-- Mobile Bottom Sheet -->
+    <div id="bottom-sheet" class="bottom-sheet">
+      <div class="sheet-handle" id="sheet-handle"></div>
+      <div id="sheet-content" class="flex-1 overflow-hidden">
+        <!-- Sheet content will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal system state
+    let currentModal = null;
+    let modalStack = [];
+    let isDragging = false;
+    let dragStartY = 0;
+    let sheetStartY = 0;
+    let focusedElementBeforeModal = null;
+
+    // Get CSS variables
+    const getCSSVariable = (name) => {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    };
+
+    const TRANSITION_DURATION = parseInt(getCSSVariable('--transition-duration'));
+    const SPRING_DURATION = parseInt(getCSSVariable('--spring-duration'));
+
+    // Modal portal elements
+    const modalPortal = document.getElementById('modal-portal');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const modalContainer = document.getElementById('modal-container');
+    const modalContent = document.getElementById('modal-content');
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const sheetContent = document.getElementById('sheet-content');
+    const sheetHandle = document.getElementById('sheet-handle');
+
+    // Focus trap elements
+    const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+    // Modal templates
+    const modalTemplates = {
+      userProfile: (userData) => `
+        <div class="flex flex-col h-full">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+            <h2 class="text-xl font-semibold text-gray-900">User Profile</h2>
+            <button class="modal-close text-gray-400 hover:text-gray-600 p-1">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6">
+            <div class="text-center mb-6">
+              <div class="avatar-xl bg-${userData.color}-500 mx-auto mb-4">
+                <span class="text-white text-2xl font-medium">${userData.initials}</span>
+              </div>
+              <h3 class="text-2xl font-semibold text-gray-900">${userData.name}</h3>
+              <p class="text-gray-600">${userData.role}</p>
+              <div class="flex items-center justify-center mt-2">
+                <div class="status-${userData.status} mr-2"></div>
+                <span class="text-sm text-gray-600 capitalize">${userData.status}</span>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <p class="text-sm text-gray-900">${userData.email}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <p class="text-sm text-gray-900">${userData.phone}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+                <p class="text-sm text-gray-900">${userData.timezone}</p>
+              </div>
+            </div>
+          </div>
+          <div class="border-t border-gray-200 p-6 flex-shrink-0">
+            <div class="flex space-x-3">
+              <button class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                Send Message
+              </button>
+              <button class="flex-1 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                Start Call
+              </button>
+            </div>
+          </div>
+        </div>
+      `,
+
+      settings: () => `
+        <div class="flex flex-col h-full">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+            <h2 class="text-xl font-semibold text-gray-900">Settings</h2>
+            <button class="modal-close text-gray-400 hover:text-gray-600 p-1">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto">
+            <div class="p-6 space-y-6">
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Notifications</h3>
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Push Notifications</p>
+                      <p class="text-sm text-gray-500">Receive notifications on your device</p>
+                    </div>
+                    <button class="w-11 h-6 bg-blue-600 rounded-full relative transition-colors">
+                      <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Email Notifications</p>
+                      <p class="text-sm text-gray-500">Receive email summaries</p>
+                    </div>
+                    <button class="w-11 h-6 bg-gray-200 rounded-full relative transition-colors">
+                      <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Appearance</h3>
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">Dark Mode</p>
+                      <p class="text-sm text-gray-500">Use dark theme</p>
+                    </div>
+                    <button class="w-11 h-6 bg-gray-200 rounded-full relative transition-colors">
+                      <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Privacy</h3>
+                <div class="space-y-2">
+                  <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                    Blocked Users
+                  </button>
+                  <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                    Data & Privacy
+                  </button>
+                  <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg confirmation-trigger" data-action="delete-account">
+                    Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+
+      mediaViewer: (imageSrc) => `
+        <div class="flex flex-col h-full bg-black">
+          <div class="flex items-center justify-between p-4 bg-black text-white flex-shrink-0">
+            <h2 class="text-lg font-medium">Image Viewer</h2>
+            <button class="modal-close text-gray-300 hover:text-white p-1">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center p-4 bg-black">
+            <img src="${imageSrc}" alt="Full size image" class="max-w-full max-h-full object-contain" />
+          </div>
+          <div class="flex items-center justify-center space-x-4 p-4 bg-black text-white flex-shrink-0">
+            <button class="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+            </button>
+            <button class="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `,
+
+      confirmation: (action) => `
+        <div class="p-6">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">Confirm Action</h3>
+              <p class="text-sm text-gray-500">This action cannot be undone</p>
+            </div>
+          </div>
+          <p class="text-gray-700 mb-6">
+            Are you sure you want to ${action}? This action is permanent and cannot be reversed.
+          </p>
+          <div class="flex space-x-3">
+            <button class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors">
+              Yes, ${action}
+            </button>
+            <button class="flex-1 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors modal-close">
+              Cancel
+            </button>
+          </div>
+        </div>
+      `,
+
+      createChannelForm: () => `
+        <div class="flex flex-col h-full">
+          <div class="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+            <h2 class="text-xl font-semibold text-gray-900">Create Channel</h2>
+            <button class="modal-close text-gray-400 hover:text-gray-600 p-1">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto p-6">
+            <form class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Channel Name</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="design-team" />
+                <p class="text-xs text-gray-500 mt-1">Channel names must be lowercase and contain no spaces</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="3" placeholder="What's this channel about?"></textarea>
+              </div>
+              <div>
+                <label class="flex items-center">
+                  <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                  <span class="ml-2 text-sm text-gray-700">Make this channel private</span>
+                </label>
+                <p class="text-xs text-gray-500 mt-1">Only invited members can see and join private channels</p>
+              </div>
+            </form>
+          </div>
+          <div class="border-t border-gray-200 p-6 flex-shrink-0">
+            <div class="flex space-x-3">
+              <button class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                Create Channel
+              </button>
+              <button class="flex-1 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors modal-close">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      `,
+
+      mobileMenu: () => `
+        <div class="flex flex-col h-full">
+          <div class="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+            <h2 class="text-lg font-semibold text-gray-900">Menu</h2>
+            <button class="modal-close text-gray-400 hover:text-gray-600 p-1">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto">
+            <div class="p-4">
+              <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Channels</h3>
+              <div class="space-y-1 mb-6">
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg">
+                  <span class="mr-2">#</span>
+                  general
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                  <span class="mr-2">#</span>
+                  random
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                  <span class="mr-2">#</span>
+                  design
+                </a>
+              </div>
+              
+              <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Direct Messages</h3>
+              <div class="space-y-1">
+                <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg user-profile-trigger" data-user="alice">
+                  <div class="status-online mr-3"></div>
+                  Alice Johnson
+                </button>
+                <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg user-profile-trigger" data-user="bob">
+                  <div class="status-away mr-3"></div>
+                  Bob Smith
+                </button>
+                <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg user-profile-trigger" data-user="carol">
+                  <div class="status-offline mr-3"></div>
+                  Carol Davis
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="border-t border-gray-200 p-4 flex-shrink-0">
+            <button class="w-full flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg settings-trigger">
+              <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              Settings
+            </button>
+          </div>
+        </div>
+      `
+    };
+
+    // User data
+    const userData = {
+      alice: { name: 'Alice Johnson', role: 'Product Designer', email: 'alice@company.com', phone: '+1 (555) 123-4567', timezone: 'PST (UTC-8)', status: 'online', color: 'green', initials: 'AJ' },
+      bob: { name: 'Bob Smith', role: 'Frontend Developer', email: 'bob@company.com', phone: '+1 (555) 234-5678', timezone: 'EST (UTC-5)', status: 'away', color: 'blue', initials: 'BS' },
+      carol: { name: 'Carol Davis', role: 'Backend Developer', email: 'carol@company.com', phone: '+1 (555) 345-6789', timezone: 'CST (UTC-6)', status: 'offline', color: 'purple', initials: 'CD' },
+      john: { name: 'John Doe', role: 'Team Lead', email: 'john@company.com', phone: '+1 (555) 456-7890', timezone: 'PST (UTC-8)', status: 'online', color: 'blue', initials: 'JD' },
+      mike: { name: 'Mike Johnson', role: 'DevOps Engineer', email: 'mike@company.com', phone: '+1 (555) 567-8901', timezone: 'EST (UTC-5)', status: 'away', color: 'gray', initials: 'MJ' }
+    };
+
+    // Modal functions
+    function openModal(template, size = 'md', data = null) {
+      // Store currently focused element
+      focusedElementBeforeModal = document.activeElement;
+      
+      // Generate content
+      let content;
+      if (typeof template === 'function') {
+        content = template(data);
+      } else if (modalTemplates[template]) {
+        content = modalTemplates[template](data);
+      } else {
+        content = template;
+      }
+      
+      // Set modal size
+      modalContent.className = `modal-content modal-${size}`;
+      
+      // Insert content
+      if (window.innerWidth < 768) {
+        sheetContent.innerHTML = content;
+      } else {
+        modalContent.innerHTML = content;
+      }
+      
+      // Show modal
+      modalPortal.classList.add('active');
+      modalBackdrop.classList.add('active');
+      
+      if (window.innerWidth < 768) {
+        bottomSheet.classList.add('active');
+      } else {
+        modalContainer.classList.add('active');
+      }
+      
+      // Prevent body scroll
+      document.body.classList.add('modal-open');
+      
+      // Set up event listeners
+      setupModalEventListeners();
+      
+      // Focus management
+      setTimeout(() => {
+        trapFocus();
+      }, 100);
+      
+      currentModal = { template, size, data };
+      modalStack.push(currentModal);
+    }
+
+    function closeModal() {
+      if (!currentModal) return;
+      
+      // Hide modal
+      modalBackdrop.classList.remove('active');
+      modalContainer.classList.remove('active');
+      bottomSheet.classList.remove('active');
+      
+      // Remove from stack
+      modalStack.pop();
+      currentModal = modalStack.length > 0 ? modalStack[modalStack.length - 1] : null;
+      
+      // Restore body scroll if no modals
+      if (modalStack.length === 0) {
+        document.body.classList.remove('modal-open');
+        modalPortal.classList.remove('active');
+        
+        // Restore focus
+        if (focusedElementBeforeModal) {
+          focusedElementBeforeModal.focus();
+          focusedElementBeforeModal = null;
+        }
+      }
+      
+      // Clean up content after animation
+      setTimeout(() => {
+        if (modalStack.length === 0) {
+          modalContent.innerHTML = '';
+          sheetContent.innerHTML = '';
+        }
+      }, TRANSITION_DURATION);
+    }
+
+    function setupModalEventListeners() {
+      // Close buttons
+      document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+      });
+      
+      // Nested modal triggers
+      document.querySelectorAll('.user-profile-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const user = btn.getAttribute('data-user');
+          if (user && userData[user]) {
+            openModal('userProfile', 'md', userData[user]);
+          }
+        });
+      });
+      
+      document.querySelectorAll('.settings-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openModal('settings', 'md');
+        });
+      });
+      
+      document.querySelectorAll('.confirmation-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const action = btn.getAttribute('data-action');
+          openModal('confirmation', 'sm', action);
+        });
+      });
+      
+      document.querySelectorAll('.form-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const form = btn.getAttribute('data-form');
+          if (form === 'create-channel') {
+            openModal('createChannelForm', 'md');
+          }
+        });
+      });
+    }
+
+    // Focus management
+    function trapFocus() {
+      const container = window.innerWidth < 768 ? bottomSheet : modalContainer;
+      const focusableElements = container.querySelectorAll(focusableSelectors);
+      
+      if (focusableElements.length === 0) return;
+      
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+      
+      // Focus first element
+      firstElement.focus();
+      
+      // Trap focus within modal
+      container.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement) {
+              e.preventDefault();
+              lastElement.focus();
+            }
+          } else {
+            if (document.activeElement === lastElement) {
+              e.preventDefault();
+              firstElement.focus();
+            }
+          }
+        }
+      });
+    }
+
+    // Touch handling for bottom sheet
+    function setupBottomSheetDrag() {
+      sheetHandle.addEventListener('touchstart', handleTouchStart, { passive: false });
+      bottomSheet.addEventListener('touchstart', handleTouchStart, { passive: false });
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd, { passive: false });
+    }
+
+    function handleTouchStart(e) {
+      if (!bottomSheet.classList.contains('active')) return;
+      
+      isDragging = true;
+      dragStartY = e.touches[0].clientY;
+      sheetStartY = bottomSheet.getBoundingClientRect().top;
+      bottomSheet.classList.add('dragging');
+    }
+
+    function handleTouchMove(e) {
+      if (!isDragging) return;
+      
+      e.preventDefault();
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - dragStartY;
+      
+      // Only allow dragging down
+      if (deltaY > 0) {
+        const newY = Math.max(0, deltaY);
+        bottomSheet.style.transform = `translateY(${newY}px)`;
+      }
+    }
+
+    function handleTouchEnd(e) {
+      if (!isDragging) return;
+      
+      isDragging = false;
+      bottomSheet.classList.remove('dragging');
+      
+      const currentY = e.changedTouches[0].clientY;
+      const deltaY = currentY - dragStartY;
+      const threshold = window.innerHeight * 0.3;
+      
+      if (deltaY > threshold) {
+        closeModal();
+      } else {
+        bottomSheet.style.transform = '';
+      }
+    }
+
+    // Event listeners
+    modalBackdrop.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && currentModal) {
+        closeModal();
+      }
+    });
+
+    // Main trigger event listeners
+    document.querySelectorAll('.user-profile-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const user = btn.getAttribute('data-user');
+        if (user && userData[user]) {
+          openModal('userProfile', 'md', userData[user]);
+        }
+      });
+    });
+
+    document.querySelectorAll('.settings-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openModal('settings', 'md');
+      });
+    });
+
+    document.querySelectorAll('.media-viewer-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const img = btn.querySelector('img');
+        const fullSrc = img ? img.getAttribute('data-full-src') || img.src : 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop';
+        openModal('mediaViewer', 'fullscreen', fullSrc);
+      });
+    });
+
+    document.querySelectorAll('.confirmation-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-action');
+        openModal('confirmation', 'sm', action);
+      });
+    });
+
+    document.querySelectorAll('.form-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const form = btn.getAttribute('data-form');
+        if (form === 'create-channel') {
+          openModal('createChannelForm', 'md');
+        }
+      });
+    });
+
+    document.querySelectorAll('.mobile-menu-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openModal('mobileMenu', 'md');
+      });
+    });
+
+    // Initialize bottom sheet drag
+    setupBottomSheetDrag();
+
+    // Auto-expand textarea
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    });
+  </script>
+</body>
+</html>

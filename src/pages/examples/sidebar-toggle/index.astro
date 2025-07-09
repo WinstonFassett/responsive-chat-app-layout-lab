@@ -1,0 +1,88 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ExampleFrame from '../../../components/ExampleFrame.astro';
+import { examples } from '../../../components/ExampleData.js';
+---
+
+<Layout title="Sidebar Toggle Layout - Responsive Chat Layouts">
+  <ExampleFrame title="Sidebar Toggle Layout" exampleId="sidebar-toggle" examples={examples} hideNavigation={true}>
+    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      
+      <article class="prose prose-lg max-w-none">
+        <h1>Sidebar Toggle Layout</h1>
+        
+        <p class="lead">
+          The sidebar toggle pattern is the most sophisticated and recognizable responsive navigation solution. It features a persistent three-column layout on desktop screens with dynamic width management, and transforms into a hamburger menu with sliding sidebar on mobile devices.
+        </p>
+
+        <!-- Quick Actions -->
+        <div class="not-prose flex flex-wrap gap-3 my-8">
+          <a 
+            href="/examples/sidebar-toggle/demo/"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            View Live Demo
+          </a>
+          <a 
+            href="#implementation"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Implementation Details
+          </a>
+          <a 
+            href="#maintainability"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Maintainability Features
+          </a>
+        </div>
+
+        <h2>Pattern Overview</h2>
+
+        <h3>Desktop Layout (≥1024px)</h3>
+        <ul>
+          <li><strong>Sidebar</strong>: Fixed width (320px), contains channel list, user list, settings</li>
+          <li><strong>Main Content</strong>: Dynamic width with smooth transitions, channel header + message list + input</li>
+          <li><strong>Thread Panel</strong>: Fixed width (320px), slides in from right with coordinated animations</li>
+          <li><strong>Layout Management</strong>: Main content automatically adjusts width when thread panel opens/closes</li>
+        </ul>
+
+        <h3>Mobile Layout (<1024px)</h3>
+        <ul>
+          <li><strong>Single Panel</strong>: Full-width main content area</li>
+          <li><strong>Hamburger Menu</strong>: Integrated into main header with smooth slide animations</li>
+          <li><strong>Sliding Sidebar</strong>: Fixed-width panel slides in from left with backdrop overlay</li>
+          <li><strong>Thread Panel</strong>: Full-width overlay slides in from right, replaces main content</li>
+        </ul>
+
+        <h2>Key Benefits</h2>
+
+        <div class="not-prose bg-green-50 border border-green-200 rounded-lg p-6 my-6">
+          <ul class="text-green-800 space-y-2 mb-0">
+            <li>✅ <strong>Universal Recognition</strong>: Users instantly understand the hamburger icon</li>
+            <li>✅ <strong>Clean Mobile Experience</strong>: Maximum screen real estate for content</li>
+            <li>✅ <strong>Smooth Coordinated Animations</strong>: Multiple panels animate in harmony</li>
+            <li>✅ <strong>Dynamic Layout Management</strong>: Content areas intelligently resize</li>
+            <li>✅ <strong>Accessibility Friendly</strong>: Works well with screen readers and keyboard navigation</li>
+            <li>✅ <strong>Performance Optimized</strong>: Hardware-accelerated transforms and minimal reflows</li>
+            <li>✅ <strong>Highly Maintainable</strong>: CSS variables and standardized patterns</li>
+          </ul>
+        </div>
+
+        <h2 id="maintainability">Maintainability Features</h2>
+
+        <h3>CSS Variables for Easy Customization</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>:root {
+  --sidebar-width: 20rem;        /* 320px, matches w-80 */
+  --thread-width: 20rem;         /* 320px */
+  --header-height: 4rem;         /* 64px, matches h-16 */
+  --transition-duration: 300ms;  /* Standard animation duration */
+  --transition-easing: ease-out; /* Standard easing */
+}</code></pre>
+        </div>
+
+      </article>
+    </div>
+  </ExampleFrame>
+</Layout>

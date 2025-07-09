@@ -1,0 +1,179 @@
+---
+interface Props {
+  title: string;
+  exampleId: string;
+  examples: Array<{id: string, title: string}>;
+  hideNavigation?: boolean;
+}
+
+const { title, exampleId, examples, hideNavigation = false } = Astro.props;
+const currentIndex = examples.findIndex(ex => ex.id === exampleId);
+const prevExample = currentIndex > 0 ? examples[currentIndex - 1] : null;
+const nextExample = currentIndex < examples.length - 1 ? examples[currentIndex + 1] : null;
+const isDemo = Astro.url.pathname.includes('/demo/');
+---
+
+<div class="min-h-screen bg-gray-100">
+  <!-- Example Frame Header (always show when hideNavigation is true) -->
+  {hideNavigation && (
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Back Button & Title (flex to take available space) -->
+          <div class="flex items-center space-x-4 flex-1">
+            <a 
+              href="/examples/" 
+              class="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Back to Examples
+            </a>
+            <div class="h-6 w-px bg-gray-300"></div>
+            <h1 class="text-lg font-semibold text-gray-900">{title}</h1>
+          </div>
+
+          <!-- Navigation Controls -->
+          <div class="flex items-center space-x-4">
+            <!-- Viewport Size Controls (only for demo) -->
+            {isDemo && (
+              <div class="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+                <button 
+                  id="viewport-mobile" 
+                  class="px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900"
+                  data-width="375"
+                  title="Mobile (375px)"
+                >
+                  📱
+                </button>
+                <button 
+                  id="viewport-tablet" 
+                  class="px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900"
+                  data-width="768"
+                  title="Tablet (768px)"
+                >
+                  📱
+                </button>
+                <button 
+                  id="viewport-desktop" 
+                  class="px-3 py-1 text-sm font-medium rounded-md bg-white text-gray-900 shadow-sm"
+                  data-width="100%"
+                  title="Desktop (Full Width)"
+                >
+                  💻
+                </button>
+              </div>
+            )}
+
+            <!-- View Toggle -->
+            <div class="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <a 
+                href={`/examples/${exampleId}/`}
+                class={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                  !isDemo
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Docs
+              </a>
+              <a 
+                href={`/examples/${exampleId}/demo/`}
+                class={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                  isDemo
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Demo
+              </a>
+            </div>
+
+            <!-- Example Navigation -->
+            <div class="flex items-center space-x-2">
+              {prevExample && (
+                <a 
+                  href={`/examples/${prevExample.id}/${isDemo ? 'demo/' : ''}`}
+                  class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  title={`Previous: ${prevExample.title}`}
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </a>
+              )}
+              <span class="text-sm text-gray-500">
+                {currentIndex + 1} of {examples.length}
+              </span>
+              {nextExample && (
+                <a 
+                  href={`/examples/${nextExample.id}/${isDemo ? 'demo/' : ''}`}
+                  class="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  title={`Next: ${nextExample.title}`}
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- Content Area -->
+  <div class="flex-1">
+    {isDemo && hideNavigation ? (
+      <!-- Demo with iframe for proper responsive behavior -->
+      <div id="viewport-container" class="mx-auto transition-all duration-300 bg-white" style="width: 100%; max-width: 100%;">
+        <iframe 
+          id="demo-iframe"
+          src={`/examples/${exampleId}/demo-content/`}
+          class="w-full border-0"
+          style="height: calc(100vh - 64px);"
+          title={`${title} Demo`}
+        ></iframe>
+      </div>
+    ) : (
+      <!-- Regular content -->
+      <div class="w-full">
+        <slot />
+      </div>
+    )}
+  </div>
+</div>
+
+{isDemo && hideNavigation && (
+  <script>
+    // Viewport size controls for iframe
+    const viewportButtons = document.querySelectorAll('[data-width]');
+    const viewportContainer = document.getElementById('viewport-container');
+    const iframe = document.getElementById('demo-iframe');
+
+    viewportButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const width = button.getAttribute('data-width');
+        
+        // Update active state
+        viewportButtons.forEach(btn => {
+          btn.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+          btn.classList.add('text-gray-600', 'hover:text-gray-900');
+        });
+        button.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+        button.classList.remove('text-gray-600', 'hover:text-gray-900');
+        
+        // Update viewport
+        if (width === '100%') {
+          viewportContainer.style.width = '100%';
+          viewportContainer.style.maxWidth = '100%';
+        } else {
+          viewportContainer.style.width = width + 'px';
+          viewportContainer.style.maxWidth = width + 'px';
+        }
+      });
+    });
+  </script>
+)}

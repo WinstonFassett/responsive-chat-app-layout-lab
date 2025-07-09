@@ -1,0 +1,372 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ExampleFrame from '../../../components/ExampleFrame.astro';
+import { examples } from '../../../components/ExampleData.js';
+---
+
+<Layout title="Tab Navigation Layout - Responsive Chat Layouts">
+  <ExampleFrame title="Tab Navigation Layout" exampleId="tab-navigation" examples={examples} hideNavigation={true}>
+    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      
+      <article class="prose prose-lg max-w-none">
+        <h1>Tab Navigation Layout</h1>
+        
+        <p class="lead">
+          The tab navigation pattern provides persistent, equal-priority access to different sections of your chat application. It features bottom tabs on mobile devices for thumb-friendly navigation and transforms into a sidebar with integrated tabs on desktop screens.
+        </p>
+
+        <!-- Quick Actions -->
+        <div class="not-prose flex flex-wrap gap-3 my-8">
+          <a 
+            href="/examples/tab-navigation/demo/"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            View Live Demo
+          </a>
+          <a 
+            href="#implementation"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Implementation Details
+          </a>
+          <a 
+            href="#maintainability"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Maintainability Features
+          </a>
+        </div>
+
+        <h2>Pattern Overview</h2>
+
+        <h3>Mobile Layout (<1024px)</h3>
+        <ul>
+          <li><strong>Bottom Tab Bar</strong>: Fixed position with thumb-friendly 44px+ touch targets</li>
+          <li><strong>Full-Screen Views</strong>: Each tab shows a dedicated full-screen interface</li>
+          <li><strong>Channels Tab</strong>: Channel list with preview messages and timestamps</li>
+          <li><strong>Users Tab</strong>: Team member list with status indicators and quick actions</li>
+          <li><strong>Settings Tab</strong>: User profile, preferences, and account options</li>
+          <li><strong>Messages View</strong>: Drill-down from channels to individual message threads</li>
+        </ul>
+
+        <h3>Desktop Layout (≥1024px)</h3>
+        <ul>
+          <li><strong>Sidebar with Tabs</strong>: Fixed width (320px) sidebar containing tab navigation</li>
+          <li><strong>Tab Content Area</strong>: Upper portion shows active tab content (channels, users, settings)</li>
+          <li><strong>Tab Navigation</strong>: Bottom section with horizontal tab buttons</li>
+          <li><strong>Main Content</strong>: Dedicated message area with channel header and input</li>
+          <li><strong>User Profile</strong>: Persistent user info at sidebar bottom</li>
+        </ul>
+
+        <h2>Key Benefits</h2>
+
+        <div class="not-prose bg-green-50 border border-green-200 rounded-lg p-6 my-6">
+          <ul class="text-green-800 space-y-2 mb-0">
+            <li>✅ <strong>Mobile-First Design</strong>: Optimized for thumb navigation on mobile devices</li>
+            <li>✅ <strong>Equal Priority Sections</strong>: All main areas are equally accessible</li>
+            <li>✅ <strong>No JavaScript Required</strong>: Pure CSS implementation possible for basic functionality</li>
+            <li>✅ <strong>Familiar Pattern</strong>: Users understand bottom tabs from native mobile apps</li>
+            <li>✅ <strong>Persistent Navigation</strong>: Always visible navigation reduces cognitive load</li>
+            <li>✅ <strong>Scalable Content</strong>: Each tab can contain complex, scrollable content</li>
+            <li>✅ <strong>Highly Maintainable</strong>: CSS variables and standardized patterns</li>
+          </ul>
+        </div>
+
+        <h2 id="maintainability">Maintainability Features</h2>
+
+        <h3>CSS Variables for Easy Customization</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>:root {
+  --sidebar-width: 20rem;        /* 320px, matches w-80 */
+  --header-height: 4rem;         /* 64px, matches h-16 */
+  --tab-height: 5rem;            /* 80px for tab navigation */
+  --profile-height: 4rem;        /* 64px for user profile */
+  --transition-duration: 300ms;  /* Standard animation duration */
+  --transition-easing: ease-out; /* Standard easing */
+}</code></pre>
+        </div>
+
+        <h3>Standardized Component Patterns</h3>
+        <ul>
+          <li><strong>Avatar Classes</strong>: <code>.avatar-xs</code>, <code>.avatar-sm</code>, <code>.avatar-md</code>, <code>.avatar-lg</code> for consistent sizing</li>
+          <li><strong>Status Indicators</strong>: <code>.status-online</code>, <code>.status-away</code>, <code>.status-offline</code> for user presence</li>
+          <li><strong>Transitions</strong>: <code>.transition-standard</code> using CSS variables for consistent timing</li>
+        </ul>
+
+        <h3>Tailwind Config Extensions</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>// Custom spacing utilities
+spacing: {
+  'sidebar': 'var(--sidebar-width)',
+  'header': 'var(--header-height)',
+  'tab': 'var(--tab-height)',
+  'profile': 'var(--profile-height)',
+}
+
+// Usage: w-sidebar, h-header, h-tab, h-profile</code></pre>
+        </div>
+
+        <h3>JavaScript Integration</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>// Read CSS variables for consistent dimensions
+const getCSSVariable = (name) => {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name).trim();
+};
+
+const TRANSITION_DURATION = parseInt(getCSSVariable('--transition-duration'));</code></pre>
+        </div>
+
+        <h2 id="mobile-first-approach">Mobile-First Design Philosophy</h2>
+
+        <h3>Bottom Tab Advantages</h3>
+        <ul>
+          <li><strong>Thumb Zone Optimization</strong>: Positioned in the natural thumb reach area</li>
+          <li><strong>Visual Hierarchy</strong>: Clear separation between content and navigation</li>
+          <li><strong>Gesture Friendly</strong>: Compatible with swipe gestures for tab switching</li>
+          <li><strong>Status Indicators</strong>: Space for badges, notifications, and status dots</li>
+        </ul>
+
+        <h3>Full-Screen Content Views</h3>
+        <ul>
+          <li><strong>Immersive Experience</strong>: Maximum screen real estate for content</li>
+          <li><strong>Context Switching</strong>: Clear mental model of different application areas</li>
+          <li><strong>Deep Navigation</strong>: Each tab can have its own navigation hierarchy</li>
+          <li><strong>Focused Interactions</strong>: Single-purpose screens reduce complexity</li>
+        </ul>
+
+        <h3>Progressive Enhancement for Desktop</h3>
+        <ul>
+          <li><strong>Sidebar Integration</strong>: Tabs become part of a larger sidebar layout</li>
+          <li><strong>Simultaneous Views</strong>: Desktop shows both sidebar content and main messages</li>
+          <li><strong>Spatial Relationships</strong>: Clear visual connection between tabs and content</li>
+          <li><strong>Efficient Screen Usage</strong>: Takes advantage of wider desktop screens</li>
+        </ul>
+
+        <h2>Detailed Interaction Patterns</h2>
+
+        <h3>Mobile Tab Switching</h3>
+        <ol>
+          <li>User taps a bottom tab button</li>
+          <li>Current view fades out or slides away (optional animation)</li>
+          <li>New view fades in or slides in from appropriate direction</li>
+          <li>Tab button updates to active state with color/icon changes</li>
+          <li>Previous tab content is hidden but state is preserved</li>
+        </ol>
+
+        <h3>Mobile Channel Navigation</h3>
+        <ol>
+          <li>User taps a channel in the Channels tab</li>
+          <li>Channels view slides left, Messages view slides in from right</li>
+          <li>Back button appears in Messages header</li>
+          <li>Channel name updates in Messages header</li>
+          <li>Back button returns to Channels view with reverse animation</li>
+        </ol>
+
+        <h3>Desktop Tab Integration</h3>
+        <ol>
+          <li>User clicks a tab in the sidebar footer</li>
+          <li>Sidebar content area updates to show new tab content</li>
+          <li>Tab button updates to active state</li>
+          <li>Main message area remains unchanged and visible</li>
+          <li>User can interact with both sidebar and main content simultaneously</li>
+        </ol>
+
+        <h2 id="implementation">Implementation Architecture</h2>
+
+        <h3>CSS-Only Approach (Basic)</h3>
+        <ul>
+          <li><strong>Radio Button Technique</strong>: Hidden radio inputs control tab state</li>
+          <li><strong>Label Targeting</strong>: Tab buttons are labels for radio inputs</li>
+          <li><strong>Sibling Selectors</strong>: CSS targets content based on checked radio state</li>
+          <li><strong>Display Control</strong>: Show/hide content with <code>display: none/block</code></li>
+        </ul>
+
+        <h3>Enhanced JavaScript Implementation</h3>
+        <ul>
+          <li><strong>CSS Variables</strong>: JavaScript reads variables for consistent behavior</li>
+          <li><strong>State Management</strong>: Track active tab and view state</li>
+          <li><strong>Animation Control</strong>: Smooth transitions between tabs and views</li>
+          <li><strong>Event Handling</strong>: Click events for tabs and navigation buttons</li>
+          <li><strong>Responsive Behavior</strong>: Different logic for mobile vs desktop</li>
+        </ul>
+
+        <h3>Mobile Navigation Stack</h3>
+        <ul>
+          <li><strong>View Stack Management</strong>: Track navigation history within tabs</li>
+          <li><strong>Back Button Logic</strong>: Context-aware back navigation</li>
+          <li><strong>State Preservation</strong>: Maintain scroll position and form state</li>
+          <li><strong>Deep Linking</strong>: URL-based navigation to specific views</li>
+        </ul>
+
+        <h2>Content Organization Strategy</h2>
+
+        <h3>Channels Tab Content</h3>
+        <ul>
+          <li><strong>Channel List</strong>: Hierarchical organization with visual indicators</li>
+          <li><strong>Preview Messages</strong>: Latest message preview with timestamp</li>
+          <li><strong>Unread Indicators</strong>: Badges and highlighting for new messages</li>
+          <li><strong>Search Integration</strong>: Quick channel and message search</li>
+        </ul>
+
+        <h3>Users Tab Content</h3>
+        <ul>
+          <li><strong>Status Grouping</strong>: Online, away, offline user organization</li>
+          <li><strong>Rich Profiles</strong>: Avatar, name, role, and status information</li>
+          <li><strong>Quick Actions</strong>: Direct message, call, or profile view buttons</li>
+          <li><strong>Team Organization</strong>: Department or project-based grouping</li>
+        </ul>
+
+        <h3>Settings Tab Content</h3>
+        <ul>
+          <li><strong>User Profile</strong>: Editable profile information and avatar</li>
+          <li><strong>Preferences</strong>: Notification, theme, and behavior settings</li>
+          <li><strong>Account Management</strong>: Privacy, security, and account options</li>
+          <li><strong>Help Resources</strong>: Documentation, support, and feedback links</li>
+        </ul>
+
+        <h2>Customization Guide</h2>
+
+        <h3>Changing Sidebar Width</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Simply update the CSS variable:</strong></p>
+          <pre class="text-sm"><code is:raw>:root {
+  --sidebar-width: 24rem; /* 384px instead of 320px */
+}</code></pre>
+          <p class="text-blue-800 text-sm mt-2">This automatically updates all related styles and JavaScript calculations.</p>
+        </div>
+
+        <h3>Adjusting Tab Heights</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Modify tab height variables:</strong></p>
+          <pre class="text-sm"><code is:raw>:root {
+  --tab-height: 6rem;     /* Taller tabs for better touch targets */
+  --profile-height: 5rem; /* Taller profile section */
+}</code></pre>
+        </div>
+
+        <h3>Custom Avatar Sizes</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Add new avatar classes:</strong></p>
+          <pre class="text-sm"><code is:raw>.avatar-xl { 
+  @apply w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0; 
+}</code></pre>
+        </div>
+
+        <h2>Responsive Breakpoint Strategy</h2>
+
+        <div class="not-prose overflow-x-auto">
+          <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Viewport</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Navigation</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Content Layout</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Interaction Model</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Mobile (<768px)</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Bottom tabs, full-width</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Single view, full-screen</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Tap to switch, drill-down navigation</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Tablet (768px-1024px)</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Bottom tabs, optimized spacing</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Single view with more padding</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Touch-optimized, larger targets</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Desktop (≥1024px)</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Sidebar tabs, horizontal layout</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Sidebar + main content</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Click to switch, simultaneous views</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Performance Considerations</h2>
+
+        <h3>Content Loading Strategy</h3>
+        <ul>
+          <li><strong>Lazy Loading</strong>: Load tab content only when first accessed</li>
+          <li><strong>Virtual Scrolling</strong>: Efficient rendering for large user/channel lists</li>
+          <li><strong>Image Optimization</strong>: Progressive loading for user avatars</li>
+          <li><strong>Data Caching</strong>: Cache frequently accessed content locally</li>
+        </ul>
+
+        <h3>Animation Performance</h3>
+        <ul>
+          <li><strong>Hardware Acceleration</strong>: Use <code>transform</code> and <code>opacity</code> for animations</li>
+          <li><strong>Reduced Motion</strong>: Respect <code>prefers-reduced-motion</code> setting</li>
+          <li><strong>Frame Rate Optimization</strong>: 60fps animations with proper timing</li>
+          <li><strong>Memory Management</strong>: Clean up unused animation resources</li>
+        </ul>
+
+        <h2 id="accessibility">Accessibility Implementation</h2>
+
+        <ul>
+          <li><strong>ARIA Roles</strong>: Proper <code>tablist</code>, <code>tab</code>, and <code>tabpanel</code> roles</li>
+          <li><strong>Keyboard Navigation</strong>: Arrow keys for tab switching, Enter/Space for activation</li>
+          <li><strong>Focus Management</strong>: Logical focus order and visible focus indicators</li>
+          <li><strong>Screen Reader Support</strong>: Announce tab changes and content updates</li>
+          <li><strong>Touch Targets</strong>: Minimum 44px touch targets for mobile accessibility</li>
+          <li><strong>Color Independence</strong>: Don't rely solely on color for state indication</li>
+          <li><strong>Content Structure</strong>: Proper heading hierarchy within each tab</li>
+        </ul>
+
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-6 my-8">
+          <h3 class="text-lg font-semibold text-blue-900 mb-3">Tab Navigation Highlights</h3>
+          <ul class="text-blue-800 space-y-1 mb-0">
+            <li>• <strong>CSS Variables Integration</strong>: Single source of truth for all dimensions</li>
+            <li>• <strong>Mobile-First Philosophy</strong>: Designed primarily for mobile thumb navigation</li>
+            <li>• <strong>Equal Priority Access</strong>: All main sections are equally accessible</li>
+            <li>• <strong>Progressive Enhancement</strong>: Gracefully scales from mobile to desktop</li>
+            <li>• <strong>Persistent Navigation</strong>: Always-visible tabs reduce cognitive load</li>
+            <li>• <strong>CSS-Only Possible</strong>: Basic functionality achievable without JavaScript</li>
+            <li>• <strong>Familiar UX Pattern</strong>: Users understand bottom tabs from native apps</li>
+            <li>• <strong>Maintainable Patterns</strong>: Standardized avatar, status, and transition classes</li>
+          </ul>
+        </div>
+
+        <h2>When to Choose Tab Navigation</h2>
+
+        <div class="not-prose grid md:grid-cols-2 gap-6 my-8">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-green-900 mb-3">Ideal Use Cases</h3>
+            <ul class="text-green-800 space-y-1 text-sm">
+              <li>• Mobile-first applications</li>
+              <li>• Equal-priority sections (channels, users, settings)</li>
+              <li>• Simple, flat navigation hierarchy</li>
+              <li>• Users frequently switch between sections</li>
+              <li>• Limited number of main sections (3-5 tabs)</li>
+              <li>• Touch-optimized interfaces</li>
+            </ul>
+          </div>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-yellow-900 mb-3">Consider Alternatives When</h3>
+            <ul class="text-yellow-800 space-y-1 text-sm">
+              <li>• Deep navigation hierarchies needed</li>
+              <li>• More than 5 main sections</li>
+              <li>• Desktop-first application</li>
+              <li>• Complex multi-panel layouts required</li>
+              <li>• Frequent contextual navigation</li>
+              <li>• Space-constrained mobile interfaces</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>
+          The tab navigation pattern excels in mobile-first chat applications where users need 
+          equal access to channels, team members, and settings. Its familiar bottom-tab approach 
+          provides intuitive navigation while scaling elegantly to desktop layouts with integrated 
+          sidebar functionality. The CSS variables and standardized patterns make it highly 
+          maintainable and customizable.
+        </p>
+      </article>
+    </div>
+  </ExampleFrame>
+</Layout>

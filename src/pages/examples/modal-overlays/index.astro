@@ -1,0 +1,613 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import ExampleFrame from '../../../components/ExampleFrame.astro';
+import { examples } from '../../../components/ExampleData.js';
+---
+
+<Layout title="Modal Overlays Layout - Responsive Chat Layouts">
+  <ExampleFrame title="Modal Overlays Layout" exampleId="modal-overlays" examples={examples} hideNavigation={true}>
+    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      
+      <article class="prose prose-lg max-w-none">
+        <h1>Modal Overlays Layout</h1>
+        
+        <p class="lead">
+          The modal overlays pattern provides secondary content presentation that maintains focus on primary content while offering contextual information and actions. It features centered modals with backdrop on desktop and bottom sheets with drag interactions on mobile, creating a sophisticated overlay system with comprehensive focus management and accessibility support.
+        </p>
+
+        <!-- Quick Actions -->
+        <div class="not-prose flex flex-wrap gap-3 my-8">
+          <a 
+            href="/examples/modal-overlays/demo/"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            View Live Demo
+          </a>
+          <a 
+            href="#implementation"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Implementation Details
+          </a>
+          <a 
+            href="#responsive-behavior"
+            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Responsive Behavior
+          </a>
+        </div>
+
+        <h2>Pattern Overview</h2>
+
+        <h3>Desktop Layout (≥768px)</h3>
+        <ul>
+          <li><strong>Centered Modals</strong>: Overlay with backdrop blur/darken effect</li>
+          <li><strong>Size Variants</strong>: Small (400px), Medium (600px), Large (800px), Full-screen</li>
+          <li><strong>Focus Management</strong>: Comprehensive focus trapping and restoration</li>
+          <li><strong>Backdrop Interaction</strong>: Click outside to close (configurable)</li>
+          <li><strong>Keyboard Navigation</strong>: Escape to close, Tab cycling within modal</li>
+          <li><strong>Modal Stack</strong>: Support for nested modals with proper z-index management</li>
+          <li><strong>Portal Rendering</strong>: Modals render outside normal DOM flow</li>
+        </ul>
+
+        <h3 id="responsive-behavior">Mobile Layout (<768px)</h3>
+        <ul>
+          <li><strong>Bottom Sheets</strong>: Slide up from bottom edge of screen</li>
+          <li><strong>Drag Handle</strong>: Visual indicator for drag-to-dismiss gesture</li>
+          <li><strong>Touch Interactions</strong>: Drag down to dismiss with momentum physics</li>
+          <li><strong>Safe Area Handling</strong>: Respect device safe areas and notches</li>
+          <li><strong>Backdrop</strong>: Semi-transparent overlay that dismisses on tap</li>
+          <li><strong>Spring Physics</strong>: Natural feel during drag interactions</li>
+          <li><strong>Snap Points</strong>: Intelligent dismiss threshold based on drag distance</li>
+        </ul>
+
+        <h2>Key Benefits</h2>
+
+        <div class="not-prose bg-green-50 border border-green-200 rounded-lg p-6 my-6">
+          <ul class="text-green-800 space-y-2 mb-0">
+            <li>✅ <strong>Contextual Information</strong>: Secondary content without losing primary context</li>
+            <li>✅ <strong>Platform-Appropriate UX</strong>: Desktop modals vs mobile bottom sheets</li>
+            <li>✅ <strong>Advanced Focus Management</strong>: WCAG AA compliant focus trapping</li>
+            <li>✅ <strong>Gesture Support</strong>: Natural drag-to-dismiss on mobile devices</li>
+            <li>✅ <strong>Modal Stack System</strong>: Support for nested modals and complex workflows</li>
+            <li>✅ <strong>Portal Architecture</strong>: Proper z-index and rendering isolation</li>
+            <li>✅ <strong>Spring Physics</strong>: Natural, responsive touch interactions</li>
+            <li>✅ <strong>Universal Content Types</strong>: User profiles, settings, media, forms, confirmations</li>
+          </ul>
+        </div>
+
+        <h2>Content Types Demonstrated</h2>
+
+        <h3>User Profile Modals</h3>
+        <ul>
+          <li><strong>Avatar Display</strong>: Large profile image with status indicators</li>
+          <li><strong>Contact Information</strong>: Email, phone, timezone details</li>
+          <li><strong>Quick Actions</strong>: Send message, start call, view full profile</li>
+          <li><strong>Status Management</strong>: Online, away, offline with visual indicators</li>
+        </ul>
+
+        <h3>Settings Modals</h3>
+        <ul>
+          <li><strong>Notification Preferences</strong>: Push notifications, email summaries</li>
+          <li><strong>Appearance Settings</strong>: Dark mode, theme preferences</li>
+          <li><strong>Privacy Controls</strong>: Blocked users, data settings</li>
+          <li><strong>Account Management</strong>: Profile editing, account deletion</li>
+        </ul>
+
+        <h3>Media Viewer</h3>
+        <ul>
+          <li><strong>Full-Screen Display</strong>: Optimized image viewing experience</li>
+          <li><strong>Dark Background</strong>: Focused viewing with minimal distractions</li>
+          <li><strong>Action Controls</strong>: Download, share, zoom functionality</li>
+          <li><strong>Keyboard Navigation</strong>: Arrow keys for navigation, Escape to close</li>
+        </ul>
+
+        <h3>Confirmation Dialogs</h3>
+        <ul>
+          <li><strong>Warning Icons</strong>: Visual indicators for destructive actions</li>
+          <li><strong>Clear Messaging</strong>: Explicit confirmation text and consequences</li>
+          <li><strong>Action Buttons</strong>: Primary (destructive) and secondary (cancel) actions</li>
+          <li><strong>Keyboard Support</strong>: Enter to confirm, Escape to cancel</li>
+        </ul>
+
+        <h3>Form Modals</h3>
+        <ul>
+          <li><strong>Channel Creation</strong>: Name, description, privacy settings</li>
+          <li><strong>User Invitations</strong>: Email input, role selection, message customization</li>
+          <li><strong>Content Reporting</strong>: Reason selection, additional details</li>
+          <li><strong>Form Validation</strong>: Real-time feedback and error handling</li>
+        </ul>
+
+        <h3>Mobile Menu (Bottom Sheet)</h3>
+        <ul>
+          <li><strong>Navigation Menu</strong>: Channel list, direct messages, settings access</li>
+          <li><strong>Drag Handle</strong>: Clear visual indicator for interaction</li>
+          <li><strong>Nested Actions</strong>: Trigger other modals from within the menu</li>
+          <li><strong>Touch Optimization</strong>: Large touch targets and gesture support</li>
+        </ul>
+
+        <h2 id="implementation">Implementation Architecture</h2>
+
+        <h3>CSS Variables for Maintainability</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>:root {
+  --modal-sm: 25rem;                /* Small modal width */
+  --modal-md: 37.5rem;              /* Medium modal width */
+  --modal-lg: 50rem;                /* Large modal width */
+  --sheet-handle-height: 1.5rem;    /* Bottom sheet handle */
+  --backdrop-opacity: 0.5;          /* Backdrop transparency */
+  --modal-radius: 0.75rem;          /* Modal border radius */
+  --transition-duration: 300ms;     /* Standard animation duration */
+  --spring-duration: 400ms;         /* Spring animation duration */
+  --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1); /* Spring easing */
+}</code></pre>
+        </div>
+
+        <h3>Portal Architecture</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>/* Modal Portal Container */
+.modal-portal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.modal-portal.active {
+  pointer-events: auto;
+}</code></pre>
+        </div>
+
+        <h3>Responsive Modal Behavior</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>/* Desktop: Centered modals */
+@media (min-width: 768px) {
+  .bottom-sheet {
+    display: none;
+  }
+  
+  .modal-container {
+    display: flex;
+  }
+}
+
+/* Mobile: Bottom sheets */
+@media (max-width: 767px) {
+  .modal-container {
+    display: none;
+  }
+  
+  .bottom-sheet {
+    display: flex;
+  }
+}</code></pre>
+        </div>
+
+        <h3>Bottom Sheet with Drag Support</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>.bottom-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: var(--modal-radius) var(--modal-radius) 0 0;
+  transform: translateY(100%);
+  transition: transform var(--spring-duration) var(--spring-easing);
+  max-height: 90vh;
+  touch-action: none;
+}
+
+.bottom-sheet.active {
+  transform: translateY(0);
+}
+
+.bottom-sheet.dragging {
+  transition: none;
+}</code></pre>
+        </div>
+
+        <h3>Modal Size Variants</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>/* Modal Size Variants */
+.modal-sm { width: var(--modal-sm); max-width: 90vw; }
+.modal-md { width: var(--modal-md); max-width: 90vw; }
+.modal-lg { width: var(--modal-lg); max-width: 90vw; }
+.modal-fullscreen { width: 95vw; height: 90vh; }</code></pre>
+        </div>
+
+        <h2>Advanced State Management</h2>
+
+        <h3>Modal Stack System</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>// Modal system state
+let currentModal = null;
+let modalStack = [];
+let focusedElementBeforeModal = null;
+
+function openModal(template, size = 'md', data = null) {
+  // Store currently focused element
+  focusedElementBeforeModal = document.activeElement;
+  
+  // Add to stack
+  currentModal = { template, size, data };
+  modalStack.push(currentModal);
+  
+  // Show modal with proper content
+  showModalContent(template, size, data);
+}
+
+function closeModal() {
+  // Remove from stack
+  modalStack.pop();
+  currentModal = modalStack.length > 0 ? modalStack[modalStack.length - 1] : null;
+  
+  // Restore focus if no modals remain
+  if (modalStack.length === 0 && focusedElementBeforeModal) {
+    focusedElementBeforeModal.focus();
+    focusedElementBeforeModal = null;
+  }
+}</code></pre>
+        </div>
+
+        <h3>Focus Management System</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>function trapFocus() {
+  const container = window.innerWidth < 768 ? bottomSheet : modalContainer;
+  const focusableElements = container.querySelectorAll(focusableSelectors);
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  // Focus first element
+  firstElement.focus();
+  
+  // Trap focus within modal
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    }
+  });
+}</code></pre>
+        </div>
+
+        <h3>Touch Gesture Handling</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>function handleTouchStart(e) {
+  if (!bottomSheet.classList.contains('active')) return;
+  
+  isDragging = true;
+  dragStartY = e.touches[0].clientY;
+  sheetStartY = bottomSheet.getBoundingClientRect().top;
+  bottomSheet.classList.add('dragging');
+}
+
+function handleTouchMove(e) {
+  if (!isDragging) return;
+  
+  e.preventDefault();
+  const currentY = e.touches[0].clientY;
+  const deltaY = currentY - dragStartY;
+  
+  // Only allow dragging down
+  if (deltaY > 0) {
+    const newY = Math.max(0, deltaY);
+    bottomSheet.style.transform = `translateY(${newY}px)`;
+  }
+}
+
+function handleTouchEnd(e) {
+  if (!isDragging) return;
+  
+  isDragging = false;
+  bottomSheet.classList.remove('dragging');
+  
+  const currentY = e.changedTouches[0].clientY;
+  const deltaY = currentY - dragStartY;
+  const threshold = window.innerHeight * 0.3;
+  
+  if (deltaY > threshold) {
+    closeModal();
+  } else {
+    bottomSheet.style.transform = '';
+  }
+}</code></pre>
+        </div>
+
+        <h2>Template System</h2>
+
+        <h3>Dynamic Content Generation</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>const modalTemplates = {
+  userProfile: (userData) => `
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900">User Profile</h2>
+        <button class="modal-close text-gray-400 hover:text-gray-600">×</button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="text-center mb-6">
+          <div class="avatar-xl bg-${userData.color}-500 mx-auto mb-4">
+            <span class="text-white text-2xl font-medium">${userData.initials}</span>
+          </div>
+          <h3 class="text-2xl font-semibold text-gray-900">${userData.name}</h3>
+          <p class="text-gray-600">${userData.role}</p>
+        </div>
+        <!-- Additional profile content -->
+      </div>
+    </div>
+  `,
+  
+  settings: () => `<!-- Settings template -->`,
+  mediaViewer: (imageSrc) => `<!-- Media viewer template -->`,
+  confirmation: (action) => `<!-- Confirmation template -->`
+};</code></pre>
+        </div>
+
+        <h3>Template Usage</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>// Open user profile modal
+document.querySelectorAll('.user-profile-trigger').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const user = btn.getAttribute('data-user');
+    if (user && userData[user]) {
+      openModal('userProfile', 'md', userData[user]);
+    }
+  });
+});
+
+// Open settings modal
+document.querySelectorAll('.settings-trigger').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openModal('settings', 'md');
+  });
+});
+
+// Open media viewer
+document.querySelectorAll('.media-viewer-trigger').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const img = btn.querySelector('img');
+    const fullSrc = img.getAttribute('data-full-src') || img.src;
+    openModal('mediaViewer', 'fullscreen', fullSrc);
+  });
+});</code></pre>
+        </div>
+
+        <h2>Accessibility Implementation</h2>
+
+        <h3>WCAG AA Compliance</h3>
+        <ul>
+          <li><strong>Focus Management</strong>: Comprehensive focus trapping and restoration</li>
+          <li><strong>Keyboard Navigation</strong>: Tab cycling, Escape to close, Enter to activate</li>
+          <li><strong>Screen Reader Support</strong>: Proper ARIA labels and announcements</li>
+          <li><strong>Color Independence</strong>: Don't rely solely on color for state indication</li>
+          <li><strong>Touch Targets</strong>: Minimum 44px touch targets for mobile accessibility</li>
+          <li><strong>Reduced Motion</strong>: Respect <code>prefers-reduced-motion</code> setting</li>
+        </ul>
+
+        <h3>Focus Trap Implementation</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+function trapFocus() {
+  const container = window.innerWidth < 768 ? bottomSheet : modalContainer;
+  const focusableElements = container.querySelectorAll(focusableSelectors);
+  
+  if (focusableElements.length === 0) return;
+  
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+  
+  // Focus first element
+  firstElement.focus();
+  
+  // Handle Tab key cycling
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  });
+}</code></pre>
+        </div>
+
+        <h3>Screen Reader Announcements</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw><!-- Modal with proper ARIA attributes -->
+<div role="dialog" aria-labelledby="modal-title" aria-describedby="modal-description" aria-modal="true">
+  <h2 id="modal-title">User Profile</h2>
+  <p id="modal-description">View and edit user profile information</p>
+  <!-- Modal content -->
+</div>
+
+<!-- Live region for announcements -->
+<div aria-live="polite" aria-atomic="true" class="sr-only" id="modal-announcements"></div></code></pre>
+        </div>
+
+        <h2>Performance Optimization</h2>
+
+        <h3>Animation Performance</h3>
+        <ul>
+          <li><strong>Hardware Acceleration</strong>: Use <code>transform</code> and <code>opacity</code> for all animations</li>
+          <li><strong>Spring Physics</strong>: Natural feel with cubic-bezier timing functions</li>
+          <li><strong>Reduced Motion</strong>: Respect user preferences for reduced motion</li>
+          <li><strong>Frame Rate</strong>: 60fps animations with optimized timing</li>
+          <li><strong>Layer Optimization</strong>: Proper z-index management for smooth transitions</li>
+        </ul>
+
+        <h3>Memory Management</h3>
+        <ul>
+          <li><strong>Event Cleanup</strong>: Remove event listeners when modals are closed</li>
+          <li><strong>Content Cleanup</strong>: Clear modal content after animations complete</li>
+          <li><strong>Stack Management</strong>: Efficient modal stack with proper cleanup</li>
+          <li><strong>Touch Event Optimization</strong>: Passive event listeners where appropriate</li>
+        </ul>
+
+        <h3>Safe Area Support</h3>
+        <div class="not-prose bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
+          <pre class="text-sm"><code is:raw>/* Safe Area Support for Mobile */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-sheet {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}</code></pre>
+        </div>
+
+        <h2>Customization Guide</h2>
+
+        <h3>Adjusting Modal Sizes</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Simply update the CSS variables:</strong></p>
+          <pre class="text-sm"><code is:raw>:root {
+  --modal-sm: 20rem;   /* Smaller small modals */
+  --modal-md: 40rem;   /* Larger medium modals */
+  --modal-lg: 60rem;   /* Larger large modals */
+}</code></pre>
+        </div>
+
+        <h3>Custom Animation Timing</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Modify animation variables:</strong></p>
+          <pre class="text-sm"><code is:raw>:root {
+  --transition-duration: 250ms;  /* Faster transitions */
+  --spring-duration: 350ms;      /* Faster spring animations */
+  --spring-easing: cubic-bezier(0.25, 1.5, 0.5, 1); /* Different spring curve */
+}</code></pre>
+        </div>
+
+        <h3>Adding Custom Modal Types</h3>
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
+          <p class="text-blue-800 text-sm mb-2"><strong>Extend the template system:</strong></p>
+          <pre class="text-sm"><code is:raw>const modalTemplates = {
+  // Existing templates...
+  
+  customModal: (data) => `
+    <div class="p-6">
+      <h2 class="text-xl font-semibold mb-4">${data.title}</h2>
+      <p class="text-gray-600">${data.content}</p>
+      <button class="modal-close mt-4 bg-blue-600 text-white px-4 py-2 rounded">
+        Close
+      </button>
+    </div>
+  `
+};
+
+// Usage
+openModal('customModal', 'md', { title: 'Custom Title', content: 'Custom content' });</code></pre>
+        </div>
+
+        <h2>Browser Support and Fallbacks</h2>
+
+        <div class="not-prose overflow-x-auto">
+          <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Feature</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Modern Browsers</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-900">Fallback</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">CSS Transforms</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Hardware-accelerated animations</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Opacity transitions</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Touch Events</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Native drag gestures</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Click-based interactions</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Safe Area Insets</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Proper notch handling</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Fixed padding values</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">CSS Variables</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Dynamic theming</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Fixed values in CSS</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2 text-sm text-gray-900">Backdrop Filter</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Blur effects</td>
+                <td class="px-4 py-2 text-sm text-gray-600">Solid color backdrop</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="not-prose bg-blue-50 border border-blue-200 rounded-lg p-6 my-8">
+          <h3 class="text-lg font-semibold text-blue-900 mb-3">Modal Overlays Highlights</h3>
+          <ul class="text-blue-800 space-y-1 mb-0">
+            <li>• <strong>Platform-Appropriate UX</strong>: Desktop modals vs mobile bottom sheets</li>
+            <li>• <strong>Advanced Focus Management</strong>: WCAG AA compliant focus trapping</li>
+            <li>• <strong>Gesture Support</strong>: Natural drag-to-dismiss on mobile devices</li>
+            <li>• <strong>Modal Stack System</strong>: Support for nested modals and complex workflows</li>
+            <li>• <strong>Portal Architecture</strong>: Proper z-index and rendering isolation</li>
+            <li>• <strong>Spring Physics</strong>: Natural, responsive touch interactions</li>
+            <li>• <strong>Template System</strong>: Flexible content generation with data binding</li>
+            <li>• <strong>Universal Content Types</strong>: Profiles, settings, media, forms, confirmations</li>
+          </ul>
+        </div>
+
+        <h2>When to Choose Modal Overlays</h2>
+
+        <div class="not-prose grid md:grid-cols-2 gap-6 my-8">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-green-900 mb-3">Ideal Use Cases</h3>
+            <ul class="text-green-800 space-y-1 text-sm">
+              <li>• Secondary content that doesn't require navigation</li>
+              <li>• User profiles and contact information</li>
+              <li>• Settings and preferences</li>
+              <li>• Media viewing and galleries</li>
+              <li>• Form dialogs and confirmations</li>
+              <li>• Contextual actions and quick tasks</li>
+              <li>• Mobile menu overlays</li>
+            </ul>
+          </div>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-yellow-900 mb-3">Consider Alternatives When</h3>
+            <ul class="text-yellow-800 space-y-1 text-sm">
+              <li>• Primary navigation is needed</li>
+              <li>• Complex multi-step workflows</li>
+              <li>• Content requires persistent visibility</li>
+              <li>• Deep hierarchical navigation</li>
+              <li>• Multiple simultaneous content areas</li>
+              <li>• Desktop-first applications</li>
+            </ul>
+          </div>
+        </div>
+
+        <p>
+          The modal overlays pattern excels in applications requiring contextual secondary content 
+          presentation without losing focus on primary tasks. Its sophisticated responsive behavior 
+          automatically adapts between desktop modals and mobile bottom sheets, while the comprehensive 
+          focus management and accessibility support ensure excellent usability across all devices and 
+          user capabilities. The template system and modal stack architecture make it ideal for complex 
+          applications with varied content types and nested interaction flows.
+        </p>
+      </article>
+    </div>
+  </ExampleFrame>
+</Layout>

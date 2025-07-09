@@ -1,0 +1,846 @@
+---
+// Tab Navigation Demo Content with CSS Variables for Maintainability
+---
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Navigation Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* CSS Variables for Maintainable Dimensions */
+    :root {
+      --sidebar-width: 20rem;        /* 320px, matches w-80 */
+      --header-height: 4rem;         /* 64px, matches h-16 */
+      --tab-height: 5rem;            /* 80px for tab navigation */
+      --profile-height: 4rem;        /* 64px for user profile */
+      --transition-duration: 300ms;  /* Standard animation duration */
+      --transition-easing: ease-out; /* Standard easing */
+    }
+    
+    html, body { height: 100%; margin: 0; padding: 0; }
+    
+    /* Standardized Avatar Patterns */
+    .avatar-xs { @apply w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-sm { @apply w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-md { @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-lg { @apply w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0; }
+    
+    /* Status Indicator Patterns */
+    .status-online { @apply w-2 h-2 bg-green-400 rounded-full flex-shrink-0; }
+    .status-away { @apply w-2 h-2 bg-yellow-400 rounded-full flex-shrink-0; }
+    .status-offline { @apply w-2 h-2 bg-gray-400 rounded-full flex-shrink-0; }
+    
+    /* Transition Patterns */
+    .transition-standard { 
+      transition: all var(--transition-duration) var(--transition-easing);
+    }
+  </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+  <div class="h-full flex flex-col lg:flex-row overflow-hidden bg-gray-100">
+    
+    <!-- Desktop Sidebar (≥1024px) -->
+    <div class="hidden lg:flex bg-white border-r border-gray-200 flex-col w-[var(--sidebar-width)]">
+      <!-- Sidebar Header -->
+      <div class="flex items-center h-[var(--header-height)] px-4 border-b border-gray-200 bg-white flex-shrink-0">
+        <h2 class="text-lg font-semibold text-gray-900">ChatApp</h2>
+      </div>
+
+      <!-- Tab Content for Desktop Sidebar -->
+      <div class="flex-1 overflow-hidden">
+        <!-- Channels Tab Content -->
+        <div id="desktop-channels" class="h-full overflow-y-auto">
+          <div class="p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Channels</h3>
+            <div class="space-y-1">
+              <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg">
+                <span class="mr-2">#</span>
+                general
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                <span class="mr-2">#</span>
+                random
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                <span class="mr-2">#</span>
+                design
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                <span class="mr-2">#</span>
+                development
+              </a>
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Direct Messages</h3>
+            <div class="space-y-1">
+              <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                <div class="status-online mr-3"></div>
+                Alice Johnson
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                <div class="status-away mr-3"></div>
+                Bob Smith
+              </a>
+              <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                <div class="status-offline mr-3"></div>
+                Carol Davis
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Tab Content (hidden by default) -->
+        <div id="desktop-users" class="h-full overflow-y-auto hidden">
+          <div class="p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Online (3)</h3>
+            <div class="space-y-3">
+              <div class="flex items-center px-3 py-2">
+                <div class="avatar-sm bg-green-500 mr-3">
+                  <span class="text-white text-sm font-medium">AJ</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Alice Johnson</p>
+                  <p class="text-xs text-gray-500">Product Designer</p>
+                </div>
+              </div>
+              <div class="flex items-center px-3 py-2">
+                <div class="avatar-sm bg-blue-500 mr-3">
+                  <span class="text-white text-sm font-medium">BS</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Bob Smith</p>
+                  <p class="text-xs text-gray-500">Frontend Developer</p>
+                </div>
+              </div>
+              <div class="flex items-center px-3 py-2">
+                <div class="avatar-sm bg-blue-500 mr-3">
+                  <span class="text-white text-sm font-medium">JD</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">John Doe</p>
+                  <p class="text-xs text-gray-500">Team Lead</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Away (2)</h3>
+            <div class="space-y-3">
+              <div class="flex items-center px-3 py-2">
+                <div class="avatar-sm bg-yellow-500 mr-3">
+                  <span class="text-white text-sm font-medium">CD</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Carol Davis</p>
+                  <p class="text-xs text-gray-500">Backend Developer</p>
+                </div>
+              </div>
+              <div class="flex items-center px-3 py-2">
+                <div class="avatar-sm bg-gray-500 mr-3">
+                  <span class="text-white text-sm font-medium">MJ</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Mike Johnson</p>
+                  <p class="text-xs text-gray-500">DevOps Engineer</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Tab Content (hidden by default) -->
+        <div id="desktop-settings" class="h-full overflow-y-auto hidden">
+          <div class="p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Preferences</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700">Dark Mode</span>
+                <button class="w-11 h-6 bg-gray-200 rounded-full relative transition-colors">
+                  <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                </button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700">Notifications</span>
+                <button class="w-11 h-6 bg-blue-600 rounded-full relative transition-colors">
+                  <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                </button>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700">Sound Effects</span>
+                <button class="w-11 h-6 bg-blue-600 rounded-full relative transition-colors">
+                  <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Account</h3>
+            <div class="space-y-2">
+              <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                Edit Profile
+              </button>
+              <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                Privacy Settings
+              </button>
+              <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+                Keyboard Shortcuts
+              </button>
+              <button class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Tab Navigation -->
+      <div class="border-t border-gray-200 bg-gray-50 flex-shrink-0" style="height: var(--tab-height);">
+        <div class="flex">
+          <button 
+            class="desktop-tab flex-1 flex flex-col items-center py-3 text-blue-600 bg-white border-r border-gray-200"
+            data-target="desktop-channels"
+          >
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+            </svg>
+            <span class="text-xs font-medium">Channels</span>
+          </button>
+          <button 
+            class="desktop-tab flex-1 flex flex-col items-center py-3 text-gray-500 hover:text-gray-700 border-r border-gray-200"
+            data-target="desktop-users"
+          >
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+            </svg>
+            <span class="text-xs font-medium">Users</span>
+          </button>
+          <button 
+            class="desktop-tab flex-1 flex flex-col items-center py-3 text-gray-500 hover:text-gray-700"
+            data-target="desktop-settings"
+          >
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span class="text-xs font-medium">Settings</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- User Profile -->
+      <div class="h-[var(--profile-height)] p-4 border-t border-gray-200 bg-white flex-shrink-0">
+        <div class="flex items-center h-full">
+          <div class="avatar-sm bg-blue-500">
+            <span class="text-white text-sm font-medium">JD</span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-700">John Doe</p>
+            <p class="text-xs text-gray-500">Online</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- Mobile Tab Content (visible only on mobile) -->
+      <div class="lg:hidden flex-1 overflow-hidden">
+        <!-- Mobile Channels View -->
+        <div id="mobile-channels" class="h-full flex flex-col">
+          <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+            <div class="flex items-center justify-between h-full">
+              <h1 class="text-lg font-semibold text-gray-900">Channels</h1>
+              <button class="text-gray-400 hover:text-gray-600 p-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto p-4">
+            <div class="space-y-1">
+              <button class="w-full flex items-center px-3 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg mobile-channel-btn" data-channel="general">
+                <span class="mr-3">#</span>
+                <div class="flex-1 text-left">
+                  <div class="font-medium">general</div>
+                  <div class="text-xs text-blue-200">Hey everyone! I just pushed...</div>
+                </div>
+                <div class="text-xs text-blue-200">9:42 AM</div>
+              </button>
+              <button class="w-full flex items-center px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg mobile-channel-btn" data-channel="random">
+                <span class="mr-3">#</span>
+                <div class="flex-1 text-left">
+                  <div class="font-medium">random</div>
+                  <div class="text-xs text-gray-500">Anyone up for lunch?</div>
+                </div>
+                <div class="text-xs text-gray-500">Yesterday</div>
+              </button>
+              <button class="w-full flex items-center px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg mobile-channel-btn" data-channel="design">
+                <span class="mr-3">#</span>
+                <div class="flex-1 text-left">
+                  <div class="font-medium">design</div>
+                  <div class="text-xs text-gray-500">New mockups are ready</div>
+                </div>
+                <div class="text-xs text-gray-500">2 days ago</div>
+              </button>
+              <button class="w-full flex items-center px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg mobile-channel-btn" data-channel="development">
+                <span class="mr-3">#</span>
+                <div class="flex-1 text-left">
+                  <div class="font-medium">development</div>
+                  <div class="text-xs text-gray-500">Code review needed</div>
+                </div>
+                <div class="text-xs text-gray-500">3 days ago</div>
+              </button>
+            </div>
+
+            <div class="mt-6">
+              <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Direct Messages</h3>
+              <div class="space-y-1">
+                <button class="w-full flex items-center px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                  <div class="status-online mr-3"></div>
+                  <div class="flex-1 text-left">
+                    <div class="font-medium">Alice Johnson</div>
+                    <div class="text-xs text-gray-500">Thanks for the feedback!</div>
+                  </div>
+                  <div class="text-xs text-gray-500">1h ago</div>
+                </button>
+                <button class="w-full flex items-center px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                  <div class="status-away mr-3"></div>
+                  <div class="flex-1 text-left">
+                    <div class="font-medium">Bob Smith</div>
+                    <div class="text-xs text-gray-500">Can we schedule a call?</div>
+                  </div>
+                  <div class="text-xs text-gray-500">2h ago</div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Users View -->
+        <div id="mobile-users" class="h-full flex-col hidden">
+          <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+            <div class="flex items-center justify-between h-full">
+              <h1 class="text-lg font-semibold text-gray-900">Team Members</h1>
+              <button class="text-gray-400 hover:text-gray-600 p-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto p-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Online (3)</h3>
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center px-3 py-3 bg-white rounded-lg border border-gray-200">
+                <div class="avatar-md bg-green-500 mr-3">
+                  <span class="text-white text-sm font-medium">AJ</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Alice Johnson</p>
+                  <p class="text-xs text-gray-500">Product Designer • Online</p>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center px-3 py-3 bg-white rounded-lg border border-gray-200">
+                <div class="avatar-md bg-blue-500 mr-3">
+                  <span class="text-white text-sm font-medium">BS</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Bob Smith</p>
+                  <p class="text-xs text-gray-500">Frontend Developer • Online</p>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center px-3 py-3 bg-white rounded-lg border border-gray-200">
+                <div class="avatar-md bg-blue-500 mr-3">
+                  <span class="text-white text-sm font-medium">JD</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">John Doe</p>
+                  <p class="text-xs text-gray-500">Team Lead • Online</p>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Away (2)</h3>
+            <div class="space-y-3">
+              <div class="flex items-center px-3 py-3 bg-white rounded-lg border border-gray-200 opacity-75">
+                <div class="avatar-md bg-yellow-500 mr-3">
+                  <span class="text-white text-sm font-medium">CD</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Carol Davis</p>
+                  <p class="text-xs text-gray-500">Backend Developer • Away</p>
+                </div>
+              </div>
+              <div class="flex items-center px-3 py-3 bg-white rounded-lg border border-gray-200 opacity-75">
+                <div class="avatar-md bg-gray-500 mr-3">
+                  <span class="text-white text-sm font-medium">MJ</span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">Mike Johnson</p>
+                  <p class="text-xs text-gray-500">DevOps Engineer • Away</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Settings View -->
+        <div id="mobile-settings" class="h-full flex-col hidden">
+          <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+            <div class="flex items-center justify-between h-full">
+              <h1 class="text-lg font-semibold text-gray-900">Settings</h1>
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto">
+            <!-- Profile Section -->
+            <div class="bg-white border-b border-gray-200 p-4">
+              <div class="flex items-center">
+                <div class="avatar-lg bg-blue-500 mr-4">
+                  <span class="text-white text-xl font-medium">JD</span>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-lg font-medium text-gray-900">John Doe</h3>
+                  <p class="text-sm text-gray-500">Team Lead</p>
+                  <p class="text-sm text-green-600">Online</p>
+                </div>
+                <button class="text-blue-600 text-sm font-medium">Edit</button>
+              </div>
+            </div>
+
+            <!-- Preferences -->
+            <div class="bg-white border-b border-gray-200">
+              <div class="p-4">
+                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Preferences</h3>
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-sm font-medium text-gray-900">Dark Mode</span>
+                      <p class="text-xs text-gray-500">Switch to dark theme</p>
+                    </div>
+                    <button class="w-11 h-6 bg-gray-200 rounded-full relative transition-colors">
+                      <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform"></div>
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-sm font-medium text-gray-900">Notifications</span>
+                      <p class="text-xs text-gray-500">Push notifications for messages</p>
+                    </div>
+                    <button class="w-11 h-6 bg-blue-600 rounded-full relative transition-colors">
+                      <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <span class="text-sm font-medium text-gray-900">Sound Effects</span>
+                      <p class="text-xs text-gray-500">Play sounds for new messages</p>
+                    </div>
+                    <button class="w-11 h-6 bg-blue-600 rounded-full relative transition-colors">
+                      <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 right-0.5 transition-transform"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Account Options -->
+            <div class="bg-white">
+              <div class="p-4">
+                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Account</h3>
+                <div class="space-y-1">
+                  <button class="w-full text-left px-3 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg flex items-center justify-between">
+                    <span>Privacy Settings</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                  <button class="w-full text-left px-3 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg flex items-center justify-between">
+                    <span>Keyboard Shortcuts</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                  <button class="w-full text-left px-3 py-3 text-sm text-gray-700 hover:bg-gray-100 rounded-lg flex items-center justify-between">
+                    <span>Help & Support</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                  <button class="w-full text-left px-3 py-3 text-sm text-red-600 hover:bg-red-50 rounded-lg">
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Messages View -->
+        <div id="mobile-messages" class="h-full flex-col hidden">
+          <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+            <div class="flex items-center justify-between h-full">
+              <div class="flex items-center min-w-0">
+                <button id="back-to-channels" class="mr-3 text-gray-600 hover:text-gray-900 p-1">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+                <h1 id="mobile-channel-title" class="text-lg font-semibold text-gray-900 truncate">
+                  # general
+                </h1>
+                <span class="ml-2 text-sm text-gray-500">234 members</span>
+              </div>
+              <button class="text-gray-400 hover:text-gray-600 p-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- Messages -->
+            <div class="flex items-start space-x-3">
+              <div class="avatar-sm bg-green-500">
+                <span class="text-white text-sm font-medium">AJ</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-medium text-gray-900">Alice Johnson</span>
+                  <span class="text-xs text-gray-500">Today at 9:42 AM</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1">
+                  Hey everyone! I just pushed the latest updates to the design system. 
+                  Would love to get your feedback on the new component library.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3">
+              <div class="avatar-sm bg-blue-500">
+                <span class="text-white text-sm font-medium">BS</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-medium text-gray-900">Bob Smith</span>
+                  <span class="text-xs text-gray-500">Today at 9:45 AM</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1">
+                  This looks great! The new button variants are exactly what we needed. 
+                  I'll start implementing these in the dashboard components.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3">
+              <div class="avatar-sm bg-purple-500">
+                <span class="text-white text-sm font-medium">CD</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-medium text-gray-900">Carol Davis</span>
+                  <span class="text-xs text-gray-500">Today at 10:12 AM</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1">
+                  Quick question about the spacing system - are we sticking with the 8px grid 
+                  or moving to the new 4px base system?
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3">
+              <div class="avatar-sm bg-blue-500">
+                <span class="text-white text-sm font-medium">JD</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-medium text-gray-900">John Doe</span>
+                  <span class="text-xs text-gray-500">Today at 10:15 AM</span>
+                </div>
+                <p class="text-sm text-gray-700 mt-1">
+                  @Carol Davis We're keeping the 8px grid for now, but I added some 4px utilities 
+                  for fine-tuning. Check the spacing documentation for details.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 bg-white h-20 p-4 flex-shrink-0">
+            <div class="flex items-end space-x-3 h-full">
+              <div class="flex-1">
+                <textarea
+                  class="w-full resize-none border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows="1"
+                  placeholder="Type a message..."
+                ></textarea>
+              </div>
+              <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors h-10">
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Messages Area (visible only on desktop) -->
+      <div class="hidden lg:flex lg:flex-col lg:flex-1 lg:min-w-0">
+
+        <!-- Desktop Header -->
+        <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+          <div class="flex items-center justify-between h-full">
+            <div class="flex items-center min-w-0">
+              <h1 class="text-lg font-semibold text-gray-900 truncate">
+                # general
+              </h1>
+              <span class="ml-2 text-sm text-gray-500">234 members</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <button class="text-gray-400 hover:text-gray-600 p-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Messages -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-green-500">
+              <span class="text-white text-sm font-medium">AJ</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">Alice Johnson</span>
+                <span class="text-xs text-gray-500">Today at 9:42 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                Hey everyone! I just pushed the latest updates to the design system. 
+                Would love to get your feedback on the new component library.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-blue-500">
+              <span class="text-white text-sm font-medium">BS</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">Bob Smith</span>
+                <span class="text-xs text-gray-500">Today at 9:45 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                This looks great! The new button variants are exactly what we needed. 
+                I'll start implementing these in the dashboard components.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-purple-500">
+              <span class="text-white text-sm font-medium">CD</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">Carol Davis</span>
+                <span class="text-xs text-gray-500">Today at 10:12 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                Quick question about the spacing system - are we sticking with the 8px grid 
+                or moving to the new 4px base system?
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-3">
+            <div class="avatar-sm bg-blue-500">
+              <span class="text-white text-sm font-medium">JD</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-900">John Doe</span>
+                <span class="text-xs text-gray-500">Today at 10:15 AM</span>
+              </div>
+              <p class="text-sm text-gray-700 mt-1">
+                @Carol Davis We're keeping the 8px grid for now, but I added some 4px utilities 
+                for fine-tuning. Check the spacing documentation for details.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Message Input -->
+        <div class="border-t border-gray-200 bg-white h-20 p-4 flex-shrink-0">
+          <div class="flex items-end space-x-3 h-full">
+            <div class="flex-1">
+              <textarea
+                class="w-full resize-none border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows="1"
+                placeholder="Type a message..."
+              ></textarea>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors h-10">
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Bottom Tab Navigation -->
+    <div class="lg:hidden bg-white border-t border-gray-200 flex-shrink-0" style="height: var(--tab-height);">
+      <div class="flex">
+        <button 
+          class="mobile-tab flex-1 flex flex-col items-center py-3 text-blue-600"
+          data-target="mobile-channels"
+        >
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+          </svg>
+          <span class="text-xs font-medium">Channels</span>
+        </button>
+        <button 
+          class="mobile-tab flex-1 flex flex-col items-center py-3 text-gray-500"
+          data-target="mobile-users"
+        >
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+          </svg>
+          <span class="text-xs font-medium">Users</span>
+        </button>
+        <button 
+          class="mobile-tab flex-1 flex flex-col items-center py-3 text-gray-500"
+          data-target="mobile-settings"
+        >
+          <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span class="text-xs font-medium">Settings</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get CSS variables for maintainable dimensions
+    const getCSSVariable = (name) => {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    };
+
+    const TRANSITION_DURATION = parseInt(getCSSVariable('--transition-duration'));
+
+    // Desktop tab functionality
+    const desktopTabs = document.querySelectorAll('.desktop-tab');
+    const desktopContents = document.querySelectorAll('[id^="desktop-"]');
+
+    desktopTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-target');
+        
+        // Update tab states
+        desktopTabs.forEach(t => {
+          t.classList.remove('text-blue-600', 'bg-white');
+          t.classList.add('text-gray-500', 'hover:text-gray-700');
+        });
+        tab.classList.remove('text-gray-500', 'hover:text-gray-700');
+        tab.classList.add('text-blue-600', 'bg-white');
+        
+        // Update content visibility
+        desktopContents.forEach(content => {
+          content.classList.add('hidden');
+        });
+        document.getElementById(target).classList.remove('hidden');
+      });
+    });
+
+    // Mobile tab functionality
+    const mobileTabs = document.querySelectorAll('.mobile-tab');
+    const mobileContents = document.querySelectorAll('[id^="mobile-"]');
+
+    mobileTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.getAttribute('data-target');
+        
+        // Update tab states
+        mobileTabs.forEach(t => {
+          t.classList.remove('text-blue-600');
+          t.classList.add('text-gray-500');
+        });
+        tab.classList.remove('text-gray-500');
+        tab.classList.add('text-blue-600');
+        
+        // Update content visibility
+        mobileContents.forEach(content => {
+          content.classList.add('hidden');
+          content.classList.remove('flex');
+        });
+        const targetElement = document.getElementById(target);
+        targetElement.classList.remove('hidden');
+        targetElement.classList.add('flex');
+      });
+    });
+
+    // Mobile channel navigation
+    const channelButtons = document.querySelectorAll('.mobile-channel-btn');
+    const backButton = document.getElementById('back-to-channels');
+    const channelTitle = document.getElementById('mobile-channel-title');
+
+    channelButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const channelName = button.getAttribute('data-channel');
+        
+        // Hide channels view, show messages view
+        document.getElementById('mobile-channels').classList.add('hidden');
+        document.getElementById('mobile-channels').classList.remove('flex');
+        document.getElementById('mobile-messages').classList.remove('hidden');
+        document.getElementById('mobile-messages').classList.add('flex');
+        
+        // Update channel title
+        channelTitle.textContent = `# ${channelName}`;
+      });
+    });
+
+    backButton?.addEventListener('click', () => {
+      // Hide messages view, show channels view
+      document.getElementById('mobile-messages').classList.add('hidden');
+      document.getElementById('mobile-messages').classList.remove('flex');
+      document.getElementById('mobile-channels').classList.remove('hidden');
+      document.getElementById('mobile-channels').classList.add('flex');
+    });
+
+    // Auto-expand textarea
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    });
+  </script>
+</body>
+</html>

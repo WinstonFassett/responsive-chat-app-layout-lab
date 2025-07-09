@@ -1,0 +1,454 @@
+---
+// Sidebar Toggle Demo Content with CSS Variables for Maintainability
+---
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sidebar Toggle Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* CSS Variables for Maintainable Dimensions */
+    :root {
+      --sidebar-width: 20rem;        /* 320px, matches w-80 */
+      --thread-width: 20rem;         /* 320px */
+      --header-height: 4rem;         /* 64px, matches h-16 */
+      --transition-duration: 300ms;  /* Standard animation duration */
+      --transition-easing: ease-out; /* Standard easing */
+    }
+    
+    /* Ensure full height */
+    html, body { height: 100%; margin: 0; padding: 0; }
+    
+    /* Standardized Avatar Patterns */
+    .avatar-sm { @apply w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-md { @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0; }
+    .avatar-lg { @apply w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0; }
+    
+    /* Status Indicator Patterns */
+    .status-online { @apply w-2 h-2 bg-green-400 rounded-full flex-shrink-0; }
+    .status-away { @apply w-2 h-2 bg-yellow-400 rounded-full flex-shrink-0; }
+    .status-offline { @apply w-2 h-2 bg-gray-400 rounded-full flex-shrink-0; }
+    
+    /* Transition Patterns */
+    .transition-standard { 
+      transition: all var(--transition-duration) var(--transition-easing);
+    }
+  </style>
+</head>
+<body class="h-full bg-gray-100 font-sans">
+  <div class="h-full flex overflow-hidden bg-gray-100">
+    
+    <!-- Backdrop Overlay (Mobile) -->
+    <div 
+      id="sidebar-backdrop" 
+      class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden transition-opacity duration-[var(--transition-duration)]"
+    ></div>
+
+    <!-- Sidebar -->
+    <div 
+      id="sidebar" 
+      class="bg-white border-r border-gray-200 flex flex-col w-[var(--sidebar-width)] transform -translate-x-full lg:translate-x-0 transition-standard z-40 fixed lg:relative h-full"
+    >
+      <!-- Sidebar Header -->
+      <div class="flex items-center justify-between h-[var(--header-height)] px-4 border-b border-gray-200 bg-white flex-shrink-0">
+        <h2 class="text-lg font-semibold text-gray-900">ChatApp</h2>
+        <button 
+          id="sidebar-close" 
+          class="lg:hidden text-gray-400 hover:text-gray-600 p-1"
+          aria-label="Close sidebar"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Channel List -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-4">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Channels</h3>
+          <div class="space-y-1">
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg">
+              <span class="mr-2">#</span>
+              general
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <span class="mr-2">#</span>
+              random
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <span class="mr-2">#</span>
+              design
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <span class="mr-2">#</span>
+              development
+            </a>
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-gray-200">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Direct Messages</h3>
+          <div class="space-y-1">
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <div class="status-online mr-3"></div>
+              Alice Johnson
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <div class="status-away mr-3"></div>
+              Bob Smith
+            </a>
+            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+              <div class="status-offline mr-3"></div>
+              Carol Davis
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Profile -->
+      <div class="h-20 p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+        <div class="flex items-center h-full">
+          <div class="avatar-sm bg-blue-500">
+            <span class="text-white text-sm font-medium">JD</span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-700">John Doe</p>
+            <p class="text-xs text-gray-500">Online</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area - Dynamically adjusts width based on thread panel state -->
+    <div class="flex-1 flex flex-col min-w-0 transition-standard" id="main-content">
+      <!-- Channel Header -->
+      <div class="bg-white border-b border-gray-200 h-[var(--header-height)] px-4 flex-shrink-0">
+        <div class="flex items-center justify-between h-full">
+          <div class="flex items-center min-w-0">
+            <!-- Hamburger Menu Button (Mobile) -->
+            <button 
+              id="sidebar-toggle" 
+              class="lg:hidden mr-4 text-gray-600 hover:text-gray-900 p-2 -ml-2"
+              aria-label="Toggle sidebar"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+            
+            <h1 class="text-lg font-semibold text-gray-900 truncate">
+              # general
+            </h1>
+            <span class="ml-2 text-sm text-gray-500">234 members</span>
+          </div>
+          <div class="flex items-center space-x-3">
+            <button 
+              id="thread-toggle"
+              class="hidden lg:flex items-center h-8 px-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Thread
+              <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+            <button class="text-gray-400 hover:text-gray-600 p-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- Message 1 -->
+        <div class="flex items-start space-x-3">
+          <div class="avatar-sm bg-green-500">
+            <span class="text-white text-sm font-medium">AJ</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-gray-900">Alice Johnson</span>
+              <span class="text-xs text-gray-500">Today at 9:42 AM</span>
+            </div>
+            <p class="text-sm text-gray-700 mt-1">
+              Hey everyone! I just pushed the latest updates to the design system. 
+              Would love to get your feedback on the new component library.
+            </p>
+          </div>
+        </div>
+
+        <!-- Message 2 -->
+        <div class="flex items-start space-x-3">
+          <div class="avatar-sm bg-blue-500">
+            <span class="text-white text-sm font-medium">BS</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-gray-900">Bob Smith</span>
+              <span class="text-xs text-gray-500">Today at 9:45 AM</span>
+            </div>
+            <p class="text-sm text-gray-700 mt-1">
+              This looks great! The new button variants are exactly what we needed. 
+              I'll start implementing these in the dashboard components.
+            </p>
+            <button class="text-xs text-blue-600 hover:text-blue-800 mt-1 font-medium thread-trigger">
+              2 replies
+            </button>
+          </div>
+        </div>
+
+        <!-- Message 3 -->
+        <div class="flex items-start space-x-3">
+          <div class="avatar-sm bg-purple-500">
+            <span class="text-white text-sm font-medium">CD</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-gray-900">Carol Davis</span>
+              <span class="text-xs text-gray-500">Today at 10:12 AM</span>
+            </div>
+            <p class="text-sm text-gray-700 mt-1">
+              Quick question about the spacing system - are we sticking with the 8px grid 
+              or moving to the new 4px base system?
+            </p>
+          </div>
+        </div>
+
+        <!-- Message 4 -->
+        <div class="flex items-start space-x-3">
+          <div class="avatar-sm bg-blue-500">
+            <span class="text-white text-sm font-medium">JD</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-sm font-medium text-gray-900">John Doe</span>
+              <span class="text-xs text-gray-500">Today at 10:15 AM</span>
+            </div>
+            <p class="text-sm text-gray-700 mt-1">
+              @Carol Davis We're keeping the 8px grid for now, but I added some 4px utilities 
+              for fine-tuning. Check the spacing documentation for details.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <div class="border-t border-gray-200 bg-white h-20 p-4 flex-shrink-0">
+        <div class="flex items-end space-x-3 h-full">
+          <div class="flex-1">
+            <textarea
+              class="w-full resize-none border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows="1"
+              placeholder="Type a message..."
+            ></textarea>
+          </div>
+          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors h-10">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thread Panel - FIXED positioned, no layout space when closed -->
+    <div 
+      id="thread-panel" 
+      class="bg-white border-l border-gray-200 flex-col transform translate-x-full transition-standard fixed h-full z-50 hidden"
+      style="width: var(--thread-width); right: 0; top: 0;"
+    >
+      <!-- Thread Header -->
+      <div class="h-[var(--header-height)] p-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        <div class="flex items-center justify-between h-full">
+          <h3 class="text-sm font-medium text-gray-900 whitespace-nowrap">Thread</h3>
+          <button 
+            id="thread-close" 
+            class="text-gray-400 hover:text-gray-600 ml-4"
+            aria-label="Close thread"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Thread Messages -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+        <div class="flex items-start space-x-3">
+          <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <span class="text-white text-xs font-medium">BS</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-medium text-gray-900">Bob Smith</span>
+              <span class="text-xs text-gray-500">9:45 AM</span>
+            </div>
+            <p class="text-xs text-gray-700 mt-1">
+              The button variants look perfect for our use case.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-3">
+          <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <span class="text-white text-xs font-medium">AJ</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-medium text-gray-900">Alice Johnson</span>
+              <span class="text-xs text-gray-500">9:47 AM</span>
+            </div>
+            <p class="text-xs text-gray-700 mt-1">
+              Thanks! I tried to make them more flexible than the previous version.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thread Input -->
+      <div class="border-t border-gray-200 h-20 p-4 flex-shrink-0">
+        <div class="flex items-end space-x-2 h-full">
+          <textarea
+            class="flex-1 resize-none border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+            rows="1"
+            placeholder="Reply in thread..."
+          ></textarea>
+          <button class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors h-8 whitespace-nowrap">
+            Reply
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get CSS variables for maintainable dimensions
+    const getCSSVariable = (name) => {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    };
+
+    const SIDEBAR_WIDTH = getCSSVariable('--sidebar-width');
+    const THREAD_WIDTH = getCSSVariable('--thread-width');
+    const TRANSITION_DURATION = parseInt(getCSSVariable('--transition-duration'));
+
+    // Sidebar toggle functionality
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    
+    // Thread panel functionality
+    const threadToggle = document.getElementById('thread-toggle');
+    const threadClose = document.getElementById('thread-close');
+    const threadPanel = document.getElementById('thread-panel');
+    const threadTriggers = document.querySelectorAll('.thread-trigger');
+    const mainContent = document.getElementById('main-content');
+
+    function openSidebar() {
+      sidebar.classList.remove('-translate-x-full');
+      sidebarBackdrop.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      sidebarBackdrop.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function openThread() {
+      if (window.innerWidth < 1024) {
+        // Mobile: Full width overlay
+        threadPanel.style.width = '100vw';
+        threadPanel.classList.remove('hidden');
+        threadPanel.classList.add('flex');
+        setTimeout(() => {
+          threadPanel.classList.remove('translate-x-full');
+        }, 10);
+      } else {
+        // Desktop: Fixed width panel from right + shrink main content
+        threadPanel.style.width = THREAD_WIDTH;
+        threadPanel.classList.remove('hidden');
+        threadPanel.classList.add('flex');
+        
+        // Shrink main content to make room for thread panel
+        mainContent.style.marginRight = THREAD_WIDTH;
+        
+        setTimeout(() => {
+          threadPanel.classList.remove('translate-x-full');
+        }, 10);
+      }
+    }
+
+    function closeThread() {
+      // Slide out to the right
+      threadPanel.classList.add('translate-x-full');
+      
+      // On desktop, restore main content width immediately for smooth animation
+      if (window.innerWidth >= 1024) {
+        mainContent.style.marginRight = '0';
+      }
+      
+      // Hide the panel after animation completes
+      setTimeout(() => {
+        threadPanel.classList.add('hidden');
+        threadPanel.classList.remove('flex');
+      }, TRANSITION_DURATION);
+    }
+
+    // Event listeners
+    sidebarToggle?.addEventListener('click', openSidebar);
+    sidebarClose?.addEventListener('click', closeSidebar);
+    sidebarBackdrop?.addEventListener('click', closeSidebar);
+    
+    threadToggle?.addEventListener('click', openThread);
+    threadClose?.addEventListener('click', closeThread);
+    
+    // Thread triggers (reply links)
+    threadTriggers.forEach(trigger => {
+      trigger.addEventListener('click', openThread);
+    });
+
+    // Close sidebar on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+        closeThread();
+      }
+    });
+
+    // Handle resize for thread panel
+    window.addEventListener('resize', () => {
+      const isThreadOpen = !threadPanel.classList.contains('translate-x-full') && !threadPanel.classList.contains('hidden');
+      
+      if (isThreadOpen) {
+        if (window.innerWidth < 1024) {
+          // Switch to mobile mode
+          threadPanel.style.width = '100vw';
+          mainContent.style.marginRight = '0';
+        } else {
+          // Switch to desktop mode
+          threadPanel.style.width = THREAD_WIDTH;
+          mainContent.style.marginRight = THREAD_WIDTH;
+        }
+      } else {
+        // Thread is closed - ensure main content takes full width
+        mainContent.style.marginRight = '0';
+      }
+    });
+
+    // Auto-expand textarea
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    });
+  </script>
+</body>
+</html>

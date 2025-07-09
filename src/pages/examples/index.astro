@@ -1,0 +1,170 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navigation from '../../components/Navigation.astro';
+
+const examples = [
+  {
+    id: 'sidebar-toggle',
+    title: 'Sidebar Toggle',
+    description: 'Classic hamburger menu with sliding sidebar',
+    complexity: 'Beginner',
+    jsRequired: 'Minimal',
+    tags: ['hamburger', 'overlay', 'mobile-first']
+  },
+  {
+    id: 'tab-navigation',
+    title: 'Tab Navigation',
+    description: 'Bottom tabs on mobile, sidebar on desktop',
+    complexity: 'Beginner',
+    jsRequired: 'None',
+    tags: ['tabs', 'mobile-first', 'css-only']
+  },
+  {
+    id: 'stack-navigation',
+    title: 'Stack Navigation',
+    description: 'iOS-style hierarchical push/pop navigation',
+    complexity: 'Intermediate',
+    jsRequired: 'Moderate',
+    tags: ['hierarchical', 'breadcrumbs', 'ios-style']
+  },
+  {
+    id: 'modal-overlays',
+    title: 'Modal Overlays',
+    description: 'Secondary content in modals and bottom sheets',
+    complexity: 'Intermediate',
+    jsRequired: 'Moderate',
+    tags: ['modals', 'overlays', 'focus-management']
+  },
+  /*
+  {
+    id: 'split-view',
+    title: 'Split View',
+    description: 'Adaptive master-detail interface',
+    complexity: 'Advanced',
+    jsRequired: 'Minimal',
+    tags: ['adaptive', 'master-detail', 'tablet-optimized']
+  },
+  {
+    id: 'drawer-pattern',
+    title: 'Material Drawer',
+    description: 'Material Design navigation drawer pattern',
+    complexity: 'Intermediate',
+    jsRequired: 'Minimal',
+    tags: ['material-design', 'drawer', 'swipe']
+  },
+  {
+    id: 'flexbox-holy-grail',
+    title: 'Flexbox Holy Grail',
+    description: 'Pure CSS flexbox responsive layout',
+    complexity: 'Advanced',
+    jsRequired: 'None',
+    tags: ['flexbox', 'css-only', 'performance']
+  },
+  {
+    id: 'accordion-panels',
+    title: 'Accordion Panels',
+    description: 'Collapsible vertical sections for mobile-first design',
+    complexity: 'Beginner',
+    jsRequired: 'Minimal',
+    tags: ['accordion', 'vertical', 'mobile-first']
+  }
+  */
+];
+---
+
+<Layout title="Layout Examples - Responsive Chat App Layouts">
+  <Navigation />
+  
+  <div class="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">
+        Layout Examples
+      </h1>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Explore different approaches to responsive chat application layouts. 
+        Each example includes specifications, live demos, and complete source code.
+      </p>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      {examples.map((example) => (
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200">
+          <div class="p-6">
+            <div class="flex items-start justify-between mb-4">
+              <h3 class="text-xl font-semibold text-gray-900">
+                <a href={`/examples/${example.id}/`} class="hover:text-blue-600 transition-colors">
+                  {example.title}
+                </a>
+              </h3>
+              <div class="flex space-x-2 ml-4">
+                <span class={`px-2 py-1 text-xs font-medium rounded-full ${
+                  example.complexity === 'Beginner' ? 'bg-green-100 text-green-800' :
+                  example.complexity === 'Intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {example.complexity}
+                </span>
+                <span class={`px-2 py-1 text-xs font-medium rounded-full ${
+                  example.jsRequired === 'None' ? 'bg-blue-100 text-blue-800' :
+                  example.jsRequired === 'Minimal' ? 'bg-indigo-100 text-indigo-800' :
+                  'bg-purple-100 text-purple-800'
+                }`}>
+                  JS: {example.jsRequired}
+                </span>
+              </div>
+            </div>
+            
+            <p class="text-gray-600 mb-4">
+              {example.description}
+            </p>
+            
+            <div class="flex flex-wrap gap-2 mb-6">
+              {example.tags.map((tag) => (
+                <span class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            
+            <div class="flex space-x-3">
+              <a 
+                href={`/examples/${example.id}/`}
+                class="flex-1 text-center py-2 px-4 rounded-lg font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+              >
+                View Docs
+              </a>
+              <a 
+                href={`/examples/${example.id}/demo/`}
+                class="flex-1 text-center py-2 px-4 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700  transition-colors"
+              >
+                Live Demo
+              </a>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-8">
+      <h2 class="text-xl font-semibold text-blue-900 mb-4">Choosing the Right Pattern</h2>
+      <div class="grid md:grid-cols-2 gap-6 text-blue-800">
+        <div>
+          <h3 class="font-medium mb-2">For Simple Chat Apps</h3>
+          <ul class="text-sm space-y-1">
+            <li>• Start with <strong>Sidebar Toggle</strong></li>
+            <li>• Consider <strong>Tab Navigation</strong> for equal-priority sections</li>
+            <li>• Use <strong>Flexbox Holy Grail</strong> for CSS-only solutions</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-medium mb-2">For Complex Applications</h3>
+          <ul class="text-sm space-y-1">
+            <li>• <strong>Stack Navigation</strong> for deep hierarchies</li>
+            <li>• <strong>Split View</strong> for tablet-optimized experiences</li>
+            <li>• <strong>Modal Overlays</strong> for contextual information</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
